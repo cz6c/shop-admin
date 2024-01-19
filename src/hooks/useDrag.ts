@@ -7,6 +7,7 @@ export interface Position {
 
 export interface UseDragOptions {
   dragElRef: Ref<HTMLElement | null>;
+  wrapElRef?: Ref<HTMLElement | null>;
   initialValue?: Position;
   onStart?: (position: Position, event: MouseEvent) => void;
   onMove?: (left: number, top: number) => void;
@@ -55,6 +56,26 @@ export function useDrag(opt: UseDragOptions) {
         top = parseInt(position.y + disY);
       dragEl.style.left = `${left}px`;
       dragEl.style.top = `${top}px`;
+      // 如果传入了外部元素，说明需要限制元素拖拽范围
+      // left 控制在 0 到 wrapEl.offsetWidth - el.offsetWidth 之间
+      // top 控制在 0 到 wrapEl.offsetHeight - el.offsetHeight 之间
+      const wrapEl = unref(opt.wrapElRef);
+      if (wrapEl) {
+        if (left < 0) {
+          dragEl.style.left = `0px`;
+        } else if (left > wrapEl.offsetWidth - dragEl.offsetWidth) {
+          dragEl.style.left = `${wrapEl.offsetWidth - dragEl.offsetWidth}px`;
+        } else {
+          dragEl.style.left = `${left}px`;
+        }
+        if (top < 0) {
+          dragEl.style.top = `0px`;
+        } else if (top > wrapEl.offsetHeight - dragEl.offsetHeight) {
+          dragEl.style.top = `${wrapEl.offsetHeight - dragEl.offsetHeight}px`;
+        } else {
+          dragEl.style.top = `${top}px`;
+        }
+      }
       opt.onMove && isFunction(opt.onMove) && opt.onMove(left, top);
       if (e.preventDefault) {
         e.preventDefault();
