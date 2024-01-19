@@ -13,6 +13,9 @@ import "@/assets/style/global.scss";
 // 注册svg
 import "virtual:svg-icons-register";
 
+// unocss
+import "virtual:uno.css";
+
 const app = createApp(App);
 
 // 配置store
