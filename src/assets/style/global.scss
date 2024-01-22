@@ -24,8 +24,7 @@ body {
 html,
 body,
 #app,
-.app-container,
-.main-view {
+.app-container {
   min-width: 1024px;
   height: 100%;
 }
@@ -36,6 +35,10 @@ h3,
 h4,
 p {
   margin: 0;
+}
+
+.app-page {
+  height: calc(100vh - 82px);
 }
 
 .cz-card {

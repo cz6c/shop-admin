@@ -1,30 +1,9 @@
-<template>
-  <el-drawer v-model="dialog" title="新增用户" direction="ltr" class="cz-drawer" size="36%" @open="handleOpen">
-    <div class="demo-drawer__content">
-      <el-form :model="formData" status-icon ref="ruleFormRef" :rules="rules" label-width="120px">
-        <el-form-item label="username" prop="username">
-          <el-input v-model="formData.username" autocomplete="off" />
-        </el-form-item>
-        <el-form-item label="remark" prop="remark">
-          <el-input v-model="formData.remark" autocomplete="off" />
-        </el-form-item>
-      </el-form>
-      <div class="demo-drawer__footer">
-        <el-button @click="dialog = false">Cancel</el-button>
-        <el-button type="primary" :loading="loading" @click="submitForm(ruleFormRef)">{{
-          loading ? "Submitting ..." : "Submit"
-        }}</el-button>
-      </div>
-    </div>
-  </el-drawer>
-</template>
-
-<script lang="ts" setup name="UserDrawerEdit">
-import { reactive, ref, computed, unref } from "vue";
+<script lang="ts" setup name="ProductFormDrawer">
 import { FormInstance, FormRules } from "element-plus";
 import { useFrom } from "@/hooks/useFrom";
-import { saveUserApi, updateUserApi } from "@/api/system/user";
-import { UserInfo } from "@/api/system/user/index.d";
+import { saveProductApi, updateProductApi } from "@/api/product/spu";
+import { ProductInfo } from "@/api/product/spu/index.d";
+import GenerateSku from "./components/GenerateSku.vue";
 
 const props = defineProps({
   modelValue: {
@@ -63,13 +42,13 @@ const rules = reactive<FormRules>({
 const handleSubmit = async () => {
   loading.value = true;
   console.log(formData);
-  const json: UserInfo = {
+  const json: ProductInfo = {
     ...formData,
   };
-  let api = saveUserApi;
+  let api = saveProductApi;
   if (props.id) {
     json.id = props.id;
-    api = updateUserApi;
+    api = updateProductApi;
   }
   try {
     await api(json);
@@ -86,4 +65,31 @@ const handleOpen = () => {
 };
 </script>
 
-<style scoped lang="scss"></style>
+<template>
+  <div class="cz-card">
+    <div>基本信息</div>
+    <el-form :model="formData" status-icon ref="ruleFormRef" :rules="rules" label-width="120px">
+      <el-form-item label="username" prop="username">
+        <el-input v-model="formData.username" autocomplete="off" />
+      </el-form-item>
+      <el-form-item label="remark" prop="remark">
+        <el-input v-model="formData.remark" autocomplete="off" />
+      </el-form-item>
+    </el-form>
+    <div>规格信息</div>
+    <GenerateSku />
+    <div class="demo-drawer__footer">
+      <el-button @click="dialog = false">Cancel</el-button>
+      <el-button type="primary" :loading="loading" @click="submitForm(ruleFormRef)">{{
+        loading ? "Submitting ..." : "Submit"
+      }}</el-button>
+    </div>
+  </div>
+</template>
+
+<style scoped lang="scss">
+.cz-card {
+  padding: 20px;
+  box-sizing: border-box;
+}
+</style>

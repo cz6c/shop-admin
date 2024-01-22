@@ -1,102 +1,51 @@
-<template>
-  <div class="page">
-    <TableView
-      ref="tableRef"
-      :columns="columns"
-      :getListApi="getListApi"
-      :searchColumns="searchList"
-      pagination
-      title="用户列表"
-      @selection-change="selectionChange"
-    >
-      <template #table-tools>
-        <el-button type="primary" @click="add">新增用户</el-button>
-      </template>
-      <template #status="{ row }">
-        <el-switch
-          v-model="row.status"
-          :active-value="1"
-          :inactive-value="0"
-          @click="statusChange(row.status, row.id)"
-        />
-      </template>
-      <template #action="{ row }">
-        <el-button link type="primary" size="small" @click="del(row.id)">Detail</el-button>
-        <el-button link type="primary" size="small" @click="edit(row.id)">Edit</el-button>
-      </template>
-    </TableView>
-    <UserDrawerEdit v-model="_isEdit" :id="_id" @update-list="tableRef?.getList" />
-  </div>
-</template>
-<script setup lang="ts" name="User">
-import { ref, reactive } from "vue";
+<script setup lang="ts" name="Spu">
 import { TableCol, TableViewInstance } from "@/components/TableView/type";
 import { SearchProps } from "@/components/SearchForm/type";
-import { getUserListApi, statusChangeApi, delUserApi } from "@/api/system/user";
-import { UserItem } from "@/api/system/user/index.d";
-import UserDrawerEdit from "./components/UserDrawerEdit.vue";
+import { getProductListApi, statusChangeApi, delProductApi } from "@/api/product/spu";
+import { ProductItem } from "@/api/product/spu/index.d";
 import { ElMessageBox } from "element-plus";
 import { $message } from "@/utils/message";
 
-const getListApi = getUserListApi;
-const delApi = delUserApi;
+const getListApi = getProductListApi;
+const delApi = delProductApi;
 const statusApi = statusChangeApi;
 
-const columns: TableCol<UserItem>[] = [
+const columns: TableCol<ProductItem>[] = [
   {
-    label: "username",
-    prop: "username",
+    label: "商品名称",
+    prop: "name",
   },
   {
-    label: "avatar",
-    prop: "avatar",
+    label: "商品描述",
+    prop: "desc",
   },
   {
     label: "roleId",
     prop: "roleId",
   },
   {
-    label: "status",
-    prop: "status",
+    label: "当前价格",
+    prop: "price",
   },
   {
-    label: "createTime",
+    label: "创建时间",
     prop: "createTime",
-  },
-  {
-    label: "remark",
-    prop: "remark",
   },
 ];
 const searchList = reactive<SearchProps[]>([
   {
     el: "input",
-    prop: "username",
-    label: "username",
+    prop: "name",
+    label: "商品名称",
     defaultValue: "",
   },
   {
     el: "date-picker",
     defaultValue: "",
     prop: "createTime",
-    label: "createTime",
+    label: "创建时间",
     props: {
       type: "date",
-    },
-  },
-  {
-    el: "switch",
-    prop: "delivery",
-    label: "Instant delivery",
-    defaultValue: 0,
-  },
-  {
-    prop: "desc",
-    label: "Activity form",
-    el: "input",
-    defaultValue: "",
-    props: {
-      type: "textarea",
     },
   },
 ]);
@@ -112,6 +61,8 @@ function selectionChange(selection: any[]) {
   selectList.value = selection || [];
 }
 
+const router = useRouter();
+
 const _isEdit = ref(false);
 const _id = ref(0);
 /**
@@ -120,6 +71,12 @@ const _id = ref(0);
 function add() {
   _id.value = 0;
   _isEdit.value = true;
+  router.push({
+    name: "SpuForm",
+    query: {
+      id: 0,
+    },
+  });
 }
 /**
  * @description: 编辑
@@ -168,3 +125,65 @@ async function del(id: number) {
     });
 }
 </script>
+
+<template>
+  <div class="app-page">
+    <TableView
+      ref="tableRef"
+      :columns="columns"
+      :getListApi="getListApi"
+      :searchColumns="searchList"
+      pagination
+      title="商品列表"
+      @selection-change="selectionChange"
+      :data="[
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+      ]"
+    >
+      <template #table-tools>
+        <el-button type="primary" @click="add">新增商品</el-button>
+      </template>
+      <template #status="{ row }">
+        <el-switch
+          v-model="row.status"
+          :active-value="1"
+          :inactive-value="0"
+          @click="statusChange(row.status, row.id)"
+        />
+      </template>
+      <template #action="{ row }">
+        <el-button link type="primary" size="small" @click="del(row.id)">Detail</el-button>
+        <el-button link type="primary" size="small" @click="edit(row.id)">Edit</el-button>
+      </template>
+    </TableView>
+  </div>
+</template>
+
+<style lang="scss" scoped></style>

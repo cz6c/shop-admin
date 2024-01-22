@@ -9,7 +9,7 @@
       </el-header>
       <el-main>
         <el-scrollbar>
-          <AppMain />
+          <AppMain class="app-main" />
         </el-scrollbar>
       </el-main>
     </el-container>
@@ -32,26 +32,23 @@ function toggleSideBar() {
 </script>
 
 <style scoped lang="scss">
-:deep(.el-aside) {
+.app-container {
+  background: #f7f7fb;
+}
+.el-aside {
   border-right: 1px solid #f2f2f2;
   background: #fff;
 }
 
-:deep(.el-header) {
-  border-right: 1px solid #f2f2f2;
+.el-header {
   background: #fff;
 }
 
 :deep(.el-main) {
-  padding: 16px;
-  background: #f7f7fb;
+  padding: 0;
 
-  .el-scrollbar__view {
-    height: 100%;
-
-    .page {
-      height: 100%;
-    }
+  .app-main {
+    margin: 16px;
   }
 }
 </style>

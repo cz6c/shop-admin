@@ -21,6 +21,16 @@ export default {
       },
     },
     {
+      path: "/product/spuForm",
+      name: "SpuForm",
+      component: () => import(`@/views/product/spu/spuForm.vue`),
+      meta: {
+        title: "编辑商品",
+        activeMenu: "/product/spu",
+        hideMenu: true,
+      },
+    },
+    {
       path: "/product/category",
       name: "Category",
       component: () => import(`@/views/product/category/index.vue`),
