@@ -56,7 +56,6 @@ import type { UploadProps, UploadRequestOptions } from "element-plus";
 import { ImageMimeType } from "./type";
 
 interface UploadFileProps {
-  imageUrl: string; // 图片地址 ==> 必传
   drag?: boolean; // 是否支持拖拽上传 ==> 非必传（默认为 true）
   disabled?: boolean; // 是否禁用上传组件 ==> 非必传（默认为 false）
   fileSize?: number; // 图片大小限制 ==> 非必传（默认为 5M）
@@ -68,7 +67,6 @@ interface UploadFileProps {
 
 // 接受父组件参数
 const props = withDefaults(defineProps<UploadFileProps>(), {
-  imageUrl: "",
   drag: true,
   disabled: false,
   fileSize: 5,
@@ -77,6 +75,8 @@ const props = withDefaults(defineProps<UploadFileProps>(), {
   width: "150px",
   borderRadius: "8px",
 });
+
+const imageUrl = defineModel<string>({ required: true }); //  图片地址 ==> 必传
 
 // 生成组件唯一id
 const uuid = ref("id-" + generateUUID());
@@ -96,16 +96,12 @@ const self_disabled = computed(() => {
  * @description 图片上传
  * @param options upload 所有配置项
  * */
-interface UploadEmits {
-  (e: "update:imageUrl", value: string): void;
-}
-const emit = defineEmits<UploadEmits>();
 const handleHttpUpload = async (options: UploadRequestOptions) => {
   let formData = new FormData();
   formData.append("file", options.file);
   try {
     const { data } = await uploadImg(formData);
-    emit("update:imageUrl", data);
+    imageUrl.value = data;
     // 调用 el-form 内部的校验方法（可自动校验）
     formItemContext?.prop && formContext?.validateField([formItemContext.prop as string]);
   } catch (error) {
@@ -117,7 +113,7 @@ const handleHttpUpload = async (options: UploadRequestOptions) => {
  * @description 删除图片
  * */
 const deleteImg = () => {
-  emit("update:imageUrl", "");
+  imageUrl.value = "";
 };
 
 /**

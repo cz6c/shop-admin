@@ -1,88 +1,130 @@
-<script lang="ts" setup name="ProductFormDrawer">
-import { FormInstance, FormRules } from "element-plus";
-import { useFrom } from "@/hooks/useFrom";
+<script lang="ts" setup name="SpuForm">
 import { saveProductApi, updateProductApi } from "@/api/product/spu";
 import { ProductInfo } from "@/api/product/spu/index.d";
 import GenerateSku from "./components/GenerateSku.vue";
+import { FormItem, FormViewInstance } from "@/components/FormView/index.d";
 
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-  },
-  id: {
-    type: Number,
-  },
+const formData = reactive({
+  name: "",
+  desc: "",
+  price: 0,
+  mainPictures: [],
+  pictures: [],
+  category: "",
+  skus: [],
+  specs: [],
 });
-const emits = defineEmits(["update:modelValue"]);
+const columns: FormItem[] = reactive([
+  {
+    prop: "name",
+    label: "商品名称",
+    initilaData: "Hello",
+    required: true,
+    rule: [{ min: 3, max: 6, message: "Length should be 3 to 6", trigger: "blur" }],
+    type: "input",
+  },
 
-const dialog = computed({
-  get: () => props.modelValue,
-  set: value => {
-    emits("update:modelValue", value);
+  {
+    prop: "price",
+    label: "商品价格",
+    initilaData: 0,
+    required: true,
+    type: "input-number",
   },
-});
+  {
+    prop: "category",
+    label: "商品分类",
+    initilaData: 0,
+    required: true,
+    type: "switch",
+  },
+  {
+    prop: "delivery",
+    label: "商品状态",
+    initilaData: 0,
+    required: true,
+    type: "switch",
+    props: {
+      activeValue: 1,
+      inactiveValue: 0,
+    },
+  },
+  {
+    prop: "desc",
+    label: "商品描述",
+    initilaData: "",
+    required: true,
+    type: "input",
+    props: {
+      type: "textarea",
+    },
+    span: 16,
+  },
+  {
+    prop: "mainPictures",
+    label: "商品主图",
+    initilaData: "",
+    required: true,
+    type: "uploads",
+    props: {
+      width: "60px",
+      height: "60px",
+    },
+    span: 16,
+  },
+  {
+    prop: "pictures",
+    label: "商品主图",
+    initilaData: "",
+    required: true,
+    type: "upload",
+    props: {
+      width: "60px",
+      height: "60px",
+    },
+    span: 16,
+  },
+]);
+const formView = ref<FormViewInstance>();
+
+const router = useRouter();
+
+const id = computed(() => Number(router.currentRoute.value.query.id) || 0);
 
 const loading = ref(false);
-
-const ruleFormRef = ref<FormInstance>();
-const formData = reactive({
-  username: "",
-  remark: "",
-  roleId: "",
-  deptId: "",
-  avatar: "",
-});
-const rules = reactive<FormRules>({
-  username: [
-    { required: true, message: "Please input Activity name", trigger: "blur" },
-    { min: 3, max: 5, message: "Length should be 3 to 5", trigger: "blur" },
-  ],
-  avatar: [{ required: true, message: "Please input activity form", trigger: "blur" }],
-});
-const handleSubmit = async () => {
-  loading.value = true;
-  console.log(formData);
-  const json: ProductInfo = {
-    ...formData,
-  };
-  let api = saveProductApi;
-  if (props.id) {
-    json.id = props.id;
-    api = updateProductApi;
-  }
-  try {
-    await api(json);
-  } catch (error) {}
-  setTimeout(() => {
-    loading.value = false;
-    dialog.value = false;
-  }, 600);
-};
-const { resetForm, submitForm } = useFrom(handleSubmit);
-
-const handleOpen = () => {
-  resetForm(unref(ruleFormRef));
+const sumbit = () => {
+  formView.value!.submitForm(async () => {
+    console.log(1321);
+    loading.value = true;
+    console.log(formData);
+    const json: ProductInfo = {
+      ...formData,
+    };
+    let api = saveProductApi;
+    if (id.value) {
+      json.id = id.value;
+      api = updateProductApi;
+    }
+    try {
+      await api(json);
+    } catch (error) {}
+    setTimeout(() => {
+      loading.value = false;
+    }, 600);
+  });
 };
 </script>
 
 <template>
   <div class="cz-card">
-    <div>基本信息</div>
-    <el-form :model="formData" status-icon ref="ruleFormRef" :rules="rules" label-width="120px">
-      <el-form-item label="username" prop="username">
-        <el-input v-model="formData.username" autocomplete="off" />
-      </el-form-item>
-      <el-form-item label="remark" prop="remark">
-        <el-input v-model="formData.remark" autocomplete="off" />
-      </el-form-item>
-    </el-form>
-    <div>规格信息</div>
+    <div class="title">基本信息</div>
+    <FormView ref="formView" v-model="formData" :columns="columns" />
+    <div class="title">规格信息</div>
     <GenerateSku />
-    <div class="demo-drawer__footer">
-      <el-button @click="dialog = false">Cancel</el-button>
-      <el-button type="primary" :loading="loading" @click="submitForm(ruleFormRef)">{{
-        loading ? "Submitting ..." : "Submit"
-      }}</el-button>
+    <div class="mt-16">
+      <el-button type="primary" :loading="loading" @click="sumbit()">
+        {{ loading ? "提交中..." : "提交" }}
+      </el-button>
     </div>
   </div>
 </template>
@@ -91,5 +133,10 @@ const handleOpen = () => {
 .cz-card {
   padding: 20px;
   box-sizing: border-box;
+}
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
 }
 </style>

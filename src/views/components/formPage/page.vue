@@ -1,31 +1,29 @@
 <template>
-  <FormView ref="formView" v-model="formList" labelWidth="126px" labelPosition="right" @sumbit="sumbit" />
+  <FormView ref="formView" v-model="formData" :columns="columns" labelPosition="top" label-suffix=":--" />
+  <el-button type="primary" @click="sumbit()">保存</el-button>
+  <el-button type="primary" @click="initilaData()">保存</el-button>
 </template>
 
 <script setup lang="ts" name="Form">
-import { reactive } from "vue";
-import { FormJsonItem } from "./index.d";
-import { useForm } from "./useForm";
-import FormView from "./index.vue";
+import { FormItem, FormViewInstance } from "@/components/FormView/index.d";
 
 const options = Array.from({ length: 10000 }).map((_, idx) => ({
   value: `${idx + 1}`,
   label: `${idx + 1}`,
 }));
-const formList: FormJsonItem[] = reactive([
+const columns: FormItem[] = reactive([
   {
     prop: "name",
     label: "Activity name",
-    data: "",
     initilaData: "Hello",
     required: true,
     rule: [{ min: 3, max: 6, message: "Length should be 3 to 6", trigger: "blur" }],
     disabled: true,
+    itemStyle: { flex: "0 0 100%" },
   },
   {
     prop: "zone",
     label: "Activity zone",
-    data: "",
     initilaData: 1,
     required: true,
     type: "select",
@@ -43,7 +41,6 @@ const formList: FormJsonItem[] = reactive([
   {
     prop: "count",
     label: "Activity count",
-    data: "",
     initilaData: 1,
     required: true,
     type: "selectV2",
@@ -52,7 +49,6 @@ const formList: FormJsonItem[] = reactive([
   {
     prop: "time",
     label: "Activity time",
-    data: "",
     initilaData: "",
     required: true,
     type: "date",
@@ -63,7 +59,6 @@ const formList: FormJsonItem[] = reactive([
   {
     prop: "delivery",
     label: "Instant delivery",
-    data: "",
     initilaData: 0,
     required: true,
     type: "switch",
@@ -71,7 +66,6 @@ const formList: FormJsonItem[] = reactive([
   {
     prop: "type",
     label: "Activity type",
-    data: [],
     initilaData: [1],
     required: true,
     type: "checkbox",
@@ -89,7 +83,6 @@ const formList: FormJsonItem[] = reactive([
   {
     prop: "resource",
     label: "Resources",
-    data: "",
     initilaData: 1,
     required: true,
     type: "radio",
@@ -107,7 +100,6 @@ const formList: FormJsonItem[] = reactive([
   {
     prop: "desc",
     label: "Activity form",
-    data: "",
     initilaData: "",
     required: true,
     elProps: {
@@ -115,11 +107,16 @@ const formList: FormJsonItem[] = reactive([
     },
   },
 ]);
+const formData = reactive({});
+const formView = ref<FormViewInstance>();
 
-const { formDataMap } = useForm({ rawList: formList });
-console.log(formDataMap);
-
-const sumbit = (payload: any) => {
-  console.log("submit!", payload);
+const sumbit = () => {
+  formView.value!.submitForm(() => {
+    console.log(1321);
+  });
 };
+
+function initilaData() {
+  formView.value!.initilaData();
+}
 </script>

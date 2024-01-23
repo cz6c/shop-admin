@@ -136,36 +136,6 @@ async function del(id: number) {
       pagination
       title="商品列表"
       @selection-change="selectionChange"
-      :data="[
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-        {},
-      ]"
     >
       <template #table-tools>
         <el-button type="primary" @click="add">新增商品</el-button>

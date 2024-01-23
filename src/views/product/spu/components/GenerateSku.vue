@@ -99,8 +99,8 @@ function setPrice() {
       </el-button>
     </div>
     <!-- sku列表 -->
-    <div class="flex-y-center justify-between mt-20 mb-10">
-      <div class="text-16 font-600">sku列表</div>
+    <div class="flex-y-center justify-between mt-20 mb-10 px-10">
+      <div class="text-16">sku列表</div>
       <div>
         <span>销售价倍数：</span>
         <el-input-number
