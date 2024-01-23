@@ -127,7 +127,7 @@ function setPrice() {
       </el-table-column>
       <el-table-column prop="picture" label="sku图片">
         <template #default="{ row }">
-          <UploadImg v-model:imageUrl="row.picture" width="80px" height="80px" />
+          <UploadImg v-model="row.picture" width="80px" height="80px" />
         </template>
       </el-table-column>
       <el-table-column prop="specs" label="规格" />

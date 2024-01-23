@@ -1,59 +1,9 @@
-<template>
-  <div class="upload-box">
-    <el-upload
-      action="#"
-      :id="uuid"
-      :class="['upload', self_disabled ? 'disabled' : '', drag ? 'no-border' : '']"
-      :multiple="false"
-      :disabled="self_disabled"
-      :show-file-list="false"
-      :http-request="handleHttpUpload"
-      :before-upload="beforeUpload"
-      :on-success="uploadSuccess"
-      :on-error="uploadError"
-      :drag="drag"
-      :accept="fileType.join(',')"
-    >
-      <template v-if="imageUrl">
-        <img :src="imageUrl" class="upload-image" />
-        <div class="upload-handle" @click.stop>
-          <div class="handle-icon" @click="editImg" v-if="!self_disabled">
-            <el-icon><Edit /></el-icon>
-            <span>编辑</span>
-          </div>
-          <div class="handle-icon" @click="imgViewVisible = true">
-            <el-icon><ZoomIn /></el-icon>
-            <span>查看</span>
-          </div>
-          <div class="handle-icon" @click="deleteImg" v-if="!self_disabled">
-            <el-icon><Delete /></el-icon>
-            <span>删除</span>
-          </div>
-        </div>
-      </template>
-      <template v-else>
-        <div class="upload-empty">
-          <slot name="empty">
-            <el-icon><Plus /></el-icon>
-            <!-- <span>请上传图片</span> -->
-          </slot>
-        </div>
-      </template>
-    </el-upload>
-    <div class="el-upload__tip">
-      <slot name="tip"></slot>
-    </div>
-    <el-image-viewer v-if="imgViewVisible" @close="imgViewVisible = false" :url-list="[imageUrl]" />
-  </div>
-</template>
-
 <script setup lang="ts" name="UploadImg">
-import { ref, computed, inject } from "vue";
 import { generateUUID } from "@/utils";
 import { uploadImg } from "@/api/public";
 import { ElNotification, formContextKey, formItemContextKey } from "element-plus";
 import type { UploadProps, UploadRequestOptions } from "element-plus";
-import { ImageMimeType } from "./type";
+import { ImageMimeType } from "./index.d";
 
 interface UploadFileProps {
   drag?: boolean; // 是否支持拖拽上传 ==> 非必传（默认为 true）
@@ -76,7 +26,7 @@ const props = withDefaults(defineProps<UploadFileProps>(), {
   borderRadius: "8px",
 });
 
-const imageUrl = defineModel<string>({ required: true }); //  图片地址 ==> 必传
+const modelValue = defineModel<string>({ required: true }); //  图片地址 ==> 必传
 
 // 生成组件唯一id
 const uuid = ref("id-" + generateUUID());
@@ -101,7 +51,7 @@ const handleHttpUpload = async (options: UploadRequestOptions) => {
   formData.append("file", options.file);
   try {
     const { data } = await uploadImg(formData);
-    imageUrl.value = data;
+    modelValue.value = data.url;
     // 调用 el-form 内部的校验方法（可自动校验）
     formItemContext?.prop && formContext?.validateField([formItemContext.prop as string]);
   } catch (error) {
@@ -113,7 +63,7 @@ const handleHttpUpload = async (options: UploadRequestOptions) => {
  * @description 删除图片
  * */
 const deleteImg = () => {
-  imageUrl.value = "";
+  modelValue.value = "";
 };
 
 /**
@@ -170,6 +120,51 @@ const uploadError = () => {
   });
 };
 </script>
+
+<template>
+  <div class="upload-box">
+    <el-upload
+      action="#"
+      :id="uuid"
+      :class="['upload', self_disabled ? 'disabled' : '', drag ? 'no-border' : '']"
+      :multiple="false"
+      :disabled="self_disabled"
+      :show-file-list="false"
+      :http-request="handleHttpUpload"
+      :before-upload="beforeUpload"
+      :on-success="uploadSuccess"
+      :on-error="uploadError"
+      :drag="drag"
+      :accept="fileType.join(',')"
+    >
+      <template v-if="modelValue">
+        <img :src="modelValue" class="upload-image" />
+        <div class="upload-handle" @click.stop>
+          <div class="handle-icon" @click="editImg" v-if="!self_disabled">
+            <el-icon><Edit /></el-icon>
+          </div>
+          <div class="handle-icon" @click="imgViewVisible = true">
+            <el-icon><ZoomIn /></el-icon>
+          </div>
+          <div class="handle-icon" @click="deleteImg" v-if="!self_disabled">
+            <el-icon><Delete /></el-icon>
+          </div>
+        </div>
+      </template>
+      <template v-else>
+        <div class="upload-empty">
+          <slot name="empty">
+            <el-icon><Plus /></el-icon>
+          </slot>
+        </div>
+      </template>
+    </el-upload>
+    <div class="el-upload__tip">
+      <slot name="tip"></slot>
+    </div>
+    <el-image-viewer v-if="imgViewVisible" @close="imgViewVisible = false" :url-list="[modelValue]" />
+  </div>
+</template>
 
 <style scoped lang="scss">
 .is-error {
@@ -254,22 +249,6 @@ const uploadError = () => {
         object-fit: contain;
       }
 
-      .upload-empty {
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 12px;
-        color: var(--el-color-info);
-        flex-direction: column;
-        line-height: 30px;
-
-        .el-icon {
-          font-size: 28px;
-          color: var(--el-text-color-secondary);
-        }
-      }
-
       .upload-handle {
         position: absolute;
         top: 0;
@@ -294,15 +273,19 @@ const uploadError = () => {
           flex-direction: column;
 
           .el-icon {
-            margin-bottom: 40%;
-            font-size: 130%;
-            line-height: 130%;
+            font-size: 20px;
           }
+        }
+      }
 
-          span {
-            font-size: 85%;
-            line-height: 85%;
-          }
+      .upload-empty {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .el-icon {
+          font-size: 28px;
+          color: var(--el-text-color-secondary);
         }
       }
     }
@@ -314,3 +297,4 @@ const uploadError = () => {
   }
 }
 </style>
+.

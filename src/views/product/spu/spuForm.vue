@@ -66,8 +66,8 @@ const columns = reactive<FormItem[]>([
     required: true,
     type: "uploads",
     props: {
-      width: "60px",
-      height: "60px",
+      width: "160px",
+      height: "160px",
     },
     span: 24,
   },

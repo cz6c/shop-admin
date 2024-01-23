@@ -1,54 +1,8 @@
-<template>
-  <div class="upload-box">
-    <el-upload
-      action="#"
-      list-type="picture-card"
-      :class="['upload', self_disabled ? 'disabled' : '', drag ? 'no-border' : '']"
-      v-model:file-list="fileList"
-      :multiple="true"
-      :disabled="self_disabled"
-      :limit="limit"
-      :http-request="handleHttpUpload"
-      :before-upload="beforeUpload"
-      :on-exceed="handleExceed"
-      :on-success="uploadSuccess"
-      :on-error="uploadError"
-      :drag="drag"
-      :accept="fileType.join(',')"
-    >
-      <div class="upload-empty">
-        <slot name="empty">
-          <el-icon><Plus /></el-icon>
-          <!-- <span>请上传图片</span> -->
-        </slot>
-      </div>
-      <template #file="{ file }">
-        <img :src="file.url" class="upload-image" />
-        <div class="upload-handle" @click.stop>
-          <div class="handle-icon" @click="handlePictureCardPreview(file)">
-            <el-icon><ZoomIn /></el-icon>
-            <span>查看</span>
-          </div>
-          <div class="handle-icon" @click="handleRemove(file)" v-if="!self_disabled">
-            <el-icon><Delete /></el-icon>
-            <span>删除</span>
-          </div>
-        </div>
-      </template>
-    </el-upload>
-    <div class="el-upload__tip">
-      <slot name="tip"></slot>
-    </div>
-    <el-image-viewer v-if="imgViewVisible" @close="imgViewVisible = false" :url-list="[viewImageUrl]" />
-  </div>
-</template>
-
 <script setup lang="ts" name="UploadImgs">
-import { ref, computed, inject } from "vue";
 import { uploadImg } from "@/api/public";
 import type { UploadProps, UploadFile, UploadUserFile, UploadRequestOptions } from "element-plus";
 import { ElNotification, formContextKey, formItemContextKey } from "element-plus";
-import { ImageMimeType } from "./type";
+import { ImageMimeType } from "./index.d";
 
 interface UploadFileProps {
   drag?: boolean; // 是否支持拖拽上传 ==> 非必传（默认为 true）
@@ -72,7 +26,7 @@ const props = withDefaults(defineProps<UploadFileProps>(), {
   borderRadius: "8px",
 });
 
-const fileList = defineModel<UploadUserFile[]>({ required: true }); //  图片地址 ==> 必传
+const modelValue = defineModel<UploadUserFile[]>({ required: true }); //  图片地址 ==> 必传
 
 // 获取 el-form 组件上下文
 const formContext = inject(formContextKey, void 0);
@@ -127,9 +81,9 @@ const handleHttpUpload = async (options: UploadRequestOptions) => {
  * @param response 上传响应结果
  * @param uploadFile 上传的文件
  * */
-const uploadSuccess = (response: { fileUrl: string } | undefined, uploadFile: UploadFile) => {
+const uploadSuccess = (response: { url: string } | undefined, uploadFile: UploadFile) => {
   if (!response) return;
-  uploadFile.url = response.fileUrl;
+  uploadFile.url = response.url;
   // 调用 el-form 内部的校验方法（可自动校验）
   formItemContext?.prop && formContext?.validateField([formItemContext.prop as string]);
   ElNotification({
@@ -144,7 +98,7 @@ const uploadSuccess = (response: { fileUrl: string } | undefined, uploadFile: Up
  * @param file 删除的文件
  * */
 const handleRemove = (file: UploadFile) => {
-  fileList.value = fileList.value.filter(item => item.url !== file.url || item.name !== file.name);
+  modelValue.value = modelValue.value.filter(item => item.url !== file.url || item.name !== file.name);
 };
 
 /**
@@ -180,6 +134,48 @@ const handlePictureCardPreview: UploadProps["onPreview"] = file => {
   imgViewVisible.value = true;
 };
 </script>
+
+<template>
+  <div class="upload-box">
+    <el-upload
+      action="#"
+      list-type="picture-card"
+      :class="['upload', self_disabled ? 'disabled' : '', drag ? 'no-border' : '']"
+      v-model:file-list="modelValue"
+      :multiple="true"
+      :disabled="self_disabled"
+      :limit="limit"
+      :http-request="handleHttpUpload"
+      :before-upload="beforeUpload"
+      :on-exceed="handleExceed"
+      :on-success="uploadSuccess"
+      :on-error="uploadError"
+      :drag="drag"
+      :accept="fileType.join(',')"
+    >
+      <div class="upload-empty">
+        <slot name="empty">
+          <el-icon><Plus /></el-icon>
+        </slot>
+      </div>
+      <template #file="{ file }">
+        <img :src="file.url" class="upload-image" />
+        <div class="upload-handle" @click.stop>
+          <div class="handle-icon" @click="handlePictureCardPreview(file)">
+            <el-icon><ZoomIn /></el-icon>
+          </div>
+          <div class="handle-icon" @click="handleRemove(file)" v-if="!self_disabled">
+            <el-icon><Delete /></el-icon>
+          </div>
+        </div>
+      </template>
+    </el-upload>
+    <div class="el-upload__tip">
+      <slot name="tip"></slot>
+    </div>
+    <el-image-viewer v-if="imgViewVisible" @close="imgViewVisible = false" :url-list="[viewImageUrl]" />
+  </div>
+</template>
 
 <style scoped lang="scss">
 .is-error {
@@ -275,12 +271,7 @@ const handlePictureCardPreview: UploadProps["onPreview"] = file => {
         flex-direction: column;
 
         .el-icon {
-          margin-bottom: 15%;
-          font-size: 140%;
-        }
-
-        span {
-          font-size: 100%;
+          font-size: 20px;
         }
       }
     }
@@ -295,11 +286,8 @@ const handlePictureCardPreview: UploadProps["onPreview"] = file => {
 
     .upload-empty {
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      font-size: 12px;
-      line-height: 30px;
-      color: var(--el-color-info);
 
       .el-icon {
         font-size: 28px;
@@ -314,3 +302,4 @@ const handlePictureCardPreview: UploadProps["onPreview"] = file => {
   }
 }
 </style>
+.
