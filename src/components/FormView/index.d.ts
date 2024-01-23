@@ -26,7 +26,6 @@ export interface FormItem {
   type: FormItemType;
   prop: string;
   label: string;
-  initilaData: any;
   itemLabelWidth?: string | number;
   required?: boolean;
   rules?: Array<FormItemRule>;

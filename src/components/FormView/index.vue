@@ -3,6 +3,7 @@ import { FormItem } from "./index.d";
 import { BreakPoint } from "@/components/Grid/type";
 import { handleProp } from "@/utils";
 import { isFunction } from "@/utils/is";
+import { cloneDeep } from "lodash-es";
 import type { FormInstance, FormRules } from "element-plus";
 const formRef = ref<FormInstance>();
 
@@ -26,6 +27,8 @@ const props = withDefaults(defineProps<FormViewProps>(), {
 });
 
 const modelValue = defineModel<{ [key: string]: any }>({ required: true }); // 表单参数
+
+const initilaData = cloneDeep(modelValue.value);
 
 /**
  * @description: 处理表单验证
@@ -69,9 +72,9 @@ const submitForm = async (validCallback: Fn) => {
 /**
  * @description: 初始化表单数据
  */
-const initilaData = () => {
-  Object.entries(props.columns).forEach(([prop, item]) => {
-    modelValue.value[prop] = item.initilaData;
+const initData = () => {
+  Object.keys(modelValue.value).forEach(key => {
+    modelValue.value[key] = initilaData[key];
   });
   if (!formRef.value) return;
   formRef.value.resetFields();
@@ -79,7 +82,7 @@ const initilaData = () => {
 
 defineExpose({
   submitForm,
-  initilaData,
+  initData,
 });
 </script>
 

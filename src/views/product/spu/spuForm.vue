@@ -5,7 +5,7 @@ import GenerateSku from "./components/GenerateSku.vue";
 import { FormItem, FormViewInstance } from "@/components/FormView/index.d";
 
 const formData = reactive({
-  name: "",
+  name: "Hello",
   desc: "",
   price: 0,
   mainPictures: [],
@@ -14,45 +14,45 @@ const formData = reactive({
   skus: [],
   specs: [],
 });
-const columns: FormItem[] = reactive([
+const columns = reactive<FormItem[]>([
   {
     prop: "name",
     label: "商品名称",
-    initilaData: "Hello",
     required: true,
-    rule: [{ min: 3, max: 6, message: "Length should be 3 to 6", trigger: "blur" }],
+    rules: [{ min: 3, max: 6, message: "Length should be 3 to 6", trigger: "blur" }],
     type: "input",
-  },
-
-  {
-    prop: "price",
-    label: "商品价格",
-    initilaData: 0,
-    required: true,
-    type: "input-number",
   },
   {
     prop: "category",
     label: "商品分类",
-    initilaData: 0,
     required: true,
-    type: "switch",
+    type: "cascader",
+  },
+  {
+    prop: "price",
+    label: "商品价格",
+    required: true,
+    type: "input-number",
+    props: {
+      min: 0.01,
+      precision: 2,
+    },
   },
   {
     prop: "delivery",
     label: "商品状态",
-    initilaData: 0,
     required: true,
     type: "switch",
     props: {
       activeValue: 1,
       inactiveValue: 0,
+      activeText: "已上架",
+      inactiveText: "已下架",
     },
   },
   {
     prop: "desc",
     label: "商品描述",
-    initilaData: "",
     required: true,
     type: "input",
     props: {
@@ -63,26 +63,24 @@ const columns: FormItem[] = reactive([
   {
     prop: "mainPictures",
     label: "商品主图",
-    initilaData: "",
     required: true,
     type: "uploads",
     props: {
       width: "60px",
       height: "60px",
     },
-    span: 16,
+    span: 24,
   },
   {
     prop: "pictures",
-    label: "商品主图",
-    initilaData: "",
+    label: "商品详情图",
     required: true,
-    type: "upload",
+    type: "uploads",
     props: {
       width: "60px",
       height: "60px",
     },
-    span: 16,
+    span: 24,
   },
 ]);
 const formView = ref<FormViewInstance>();
@@ -113,6 +111,10 @@ const sumbit = () => {
     }, 600);
   });
 };
+
+function initData() {
+  formView.value!.initData();
+}
 </script>
 
 <template>
@@ -124,6 +126,9 @@ const sumbit = () => {
     <div class="mt-16">
       <el-button type="primary" :loading="loading" @click="sumbit()">
         {{ loading ? "提交中..." : "提交" }}
+      </el-button>
+      <el-button type="primary" :loading="loading" @click="initData()">
+        {{ loading ? "重置中..." : "重置" }}
       </el-button>
     </div>
   </div>
