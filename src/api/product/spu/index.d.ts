@@ -1,6 +1,7 @@
 import { GetListParams, GetListResponse } from "@/api/public/index.d";
 // 详情
 export interface ProductItem {
+  id: number;
   /** 商品名称 */
   name: string;
 
@@ -23,18 +24,12 @@ export interface ProductItem {
   specs: SpecificationItem[];
 
   /** 多对一分类 */
-  category: string;
+  categoryId: number;
+  categoryName: string;
 
   status: 0 | 1;
+}
 
-  isDelete: 0 | 1;
-}
-// 新增/编辑body
-export interface ProductInfo extends Omit<ProductItem, "id" | "status" | "isDelete"> {
-  id?: number;
-  status?: 0 | 1;
-  isDelete?: 0 | 1;
-}
 // 列表
 export type ProductListResponse = GetListResponse<ProductItem>;
 export interface ProductListParams extends GetListParams {

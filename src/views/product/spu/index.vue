@@ -17,7 +17,7 @@ const columns: TableCol<ProductItem>[] = [
   },
   {
     label: "商品描述",
-    prop: "desc",
+    prop: " ",
   },
   {
     label: "roleId",

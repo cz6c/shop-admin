@@ -23,7 +23,7 @@ export default {
     {
       path: "/product/spuForm",
       name: "SpuForm",
-      component: () => import(`@/views/product/spu/spuForm.vue`),
+      component: () => import(`@/views/product/spu/spuForm/index.vue`),
       meta: {
         title: "编辑商品",
         activeMenu: "/product/spu",

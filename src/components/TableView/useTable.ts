@@ -68,20 +68,20 @@ export function useTable(props: TableProps) {
   };
 
   // 计算搜索项的初始值
-  const initData = computed(() => {
-    const temp: Record<string, any> = {};
-    const list = Array.prototype.concat(...props.searchColumns!);
-    list.forEach((item: SearchProps) => {
-      const { prop, defaultValue } = item;
-      temp[prop] = defaultValue;
-    });
-    return temp;
-  });
+  // const initData = computed(() => {
+  //   const temp: Record<string, any> = {};
+  //   const list = Array.prototype.concat(...props?.searchColumns);
+  //   list.forEach((item: SearchProps) => {
+  //     const { prop, defaultValue } = item;
+  //     temp[prop] = defaultValue;
+  //   });
+  //   return temp;
+  // });
   /**
    * @description: 重置搜索
    */
   function reset() {
-    Object.assign(state.searchParam, initData.value);
+    // Object.assign(state.searchParam, initData.value);
     Object.assign(state.apiQuery, {
       page: 1,
       limit: 20,

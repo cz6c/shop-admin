@@ -61,8 +61,8 @@ defineExpose({ getList });
 <template>
   <div class="table-view">
     <!-- 表格搜索 -->
-    <div class="table-search cz-card" v-if="props.searchColumns!.length">
-      <SearchForm :columns="props.searchColumns" :search-param="searchParam" @search="getList" @reset="reset" />
+    <div class="table-search cz-card" v-if="props?.searchColumns">
+      <SearchForm :columns="props?.searchColumns" :search-param="searchParam" @search="getList" @reset="reset" />
     </div>
     <div class="table-main cz-card">
       <!-- 表格头部 -->
