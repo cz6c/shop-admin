@@ -1,5 +1,5 @@
 <script lang="ts" setup name="SpuForm">
-import { createProductApi, updateProductApi } from "@/api/product/spu";
+import { createProductApi, updateProductApi, getProductInfoApi } from "@/api/product/spu";
 import { ProductItem } from "@/api/product/spu/index.d";
 import GenerateSku from "./components/GenerateSku.vue";
 import { useCategory } from "@/views/product/category/useCategory";
@@ -10,17 +10,13 @@ const { options, getCategoryTrees } = useCategory();
 getCategoryTrees();
 
 const formData = reactive({
-  name: "66",
-  categoryIds: [1],
-  desc: "66",
+  name: "",
+  categoryIds: [],
+  desc: "",
   price: 0,
-  mainPictures: [{ url: "http://qiniu.cz6hy9.top/test/3d79a516792242270a843c0c87baa67c.png" }],
-  pictures: [{ url: "http://qiniu.cz6hy9.top/test/3d79a516792242270a843c0c87baa67c.png" }],
-  specs: [
-    { name: "颜色", options: ["红色", "紫色"] },
-    { name: "套餐", options: ["套餐一", "套餐二"] },
-    { name: "内存", options: ["128G", "256G"] },
-  ],
+  mainPictures: [],
+  pictures: [],
+  specs: [],
   skus: [],
 });
 const columns = reactive<FormItem[]>([
@@ -128,6 +124,11 @@ const sumbit = () => {
 function initData() {
   formView.value!.initData();
 }
+
+async function getInfo(id: number) {
+  const { data } = await getProductInfoApi({ id });
+}
+id.value && getInfo(id.value);
 </script>
 
 <template>

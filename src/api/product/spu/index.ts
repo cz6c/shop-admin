@@ -5,7 +5,7 @@ import { ProductListParams, ProductListResponse, ProductItem } from "./index.d";
 export const getProductListApi = createGet<ProductListParams, ProductListResponse>("/product/list");
 
 // 获取信息
-export const getLoginProductInfoApi = createGet<{ id: number }, ProductItem>("/product/info");
+export const getProductInfoApi = createGet<{ id: number }, ProductItem>("/product/info");
 // 新增
 export const createProductApi = createPost<Partial<ProductItem>, never>("/product/create");
 // 编辑

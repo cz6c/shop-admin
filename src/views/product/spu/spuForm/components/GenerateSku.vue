@@ -22,16 +22,19 @@ function handleBlur(item: SpecificationItem, idx: number) {
 
 watch(
   () => specList.value,
-  () => {
-    skuList.value = generateSKUs(specList.value).map(specs => ({
-      specs: specs.map((spec, i) => `${specList.value[i].name}:${spec}`).join(";"),
-      costPrice: 0,
-      price: 0,
-      inventory: 0,
-      skuName: "",
-      picture: "",
-      skuCode: "",
-    }));
+  n => {
+    if (n) {
+      console.log(generateSKUs(specList.value));
+      skuList.value = generateSKUs(n).map(specs => ({
+        specs: specs.map((spec, i) => `${n[i].name}:${spec}`).join(";"),
+        costPrice: 0,
+        price: 0,
+        inventory: 0,
+        skuName: "",
+        picture: "",
+        skuCode: "",
+      }));
+    }
   },
   {
     deep: true,

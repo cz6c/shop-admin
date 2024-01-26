@@ -63,28 +63,25 @@ function selectionChange(selection: any[]) {
 
 const router = useRouter();
 
-const _isEdit = ref(false);
-const _id = ref(0);
-/**
- * @description: 新增
- */
-function add() {
-  _id.value = 0;
-  _isEdit.value = true;
-  router.push({
-    name: "SpuForm",
-    query: {
-      id: 0,
-    },
-  });
-}
 /**
  * @description: 编辑
  * @param {*} id
  */
-function edit(id: number) {
-  _id.value = id;
-  _isEdit.value = true;
+function goForm(id?: number) {
+  router.push({
+    name: "SpuForm",
+    query: {
+      id,
+    },
+  });
+}
+function goDetails(id: number) {
+  router.push({
+    name: "SpuDetails",
+    query: {
+      id,
+    },
+  });
 }
 /**
  * @description: 状态切换
@@ -138,7 +135,7 @@ async function del(id: number) {
       @selection-change="selectionChange"
     >
       <template #table-tools>
-        <el-button type="primary" @click="add">新增商品</el-button>
+        <el-button type="primary" @click="goForm()">新增商品</el-button>
       </template>
       <template #status="{ row }">
         <el-switch
@@ -149,8 +146,9 @@ async function del(id: number) {
         />
       </template>
       <template #action="{ row }">
-        <el-button link type="primary" size="small" @click="del(row.id)">Detail</el-button>
-        <el-button link type="primary" size="small" @click="edit(row.id)">Edit</el-button>
+        <el-button link type="primary" size="small" @click="goDetails(row.id)">详情</el-button>
+        <el-button link type="primary" size="small" @click="goForm(row.id)">编辑</el-button>
+        <el-button link type="danger" size="small" @click="del(row.id)">删除</el-button>
       </template>
     </TableView>
   </div>
