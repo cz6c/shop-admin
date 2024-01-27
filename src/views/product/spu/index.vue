@@ -1,4 +1,4 @@
-<script setup lang="ts" name="Spu">
+<script setup lang="tsx" name="Spu">
 import { TableCol, TableViewInstance } from "@/components/TableView/type";
 import { SearchProps } from "@/components/SearchForm/type";
 import { getProductListApi, statusChangeApi, delProductApi } from "@/api/product/spu";
@@ -16,12 +16,21 @@ const columns: TableCol<ProductItem>[] = [
     prop: "name",
   },
   {
-    label: "商品描述",
-    prop: " ",
+    label: "商品编码",
+    prop: "spuCode",
   },
   {
-    label: "roleId",
-    prop: "roleId",
+    label: "商品主图",
+    prop: "mainPictures",
+    render: ({ row: { mainPictures } }) => <el-image src={mainPictures[0]} />,
+  },
+  {
+    label: "商品描述",
+    prop: "desc",
+  },
+  {
+    label: "商品分类",
+    prop: "categoryName",
   },
   {
     label: "当前价格",

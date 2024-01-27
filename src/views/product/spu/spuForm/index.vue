@@ -11,11 +11,13 @@ getCategoryTrees();
 
 const formData = reactive({
   name: "",
+  spuCode: "",
   categoryIds: [],
   desc: "",
   price: 0,
   mainPictures: [],
   pictures: [],
+  status: false,
   specs: [],
   skus: [],
 });
@@ -23,6 +25,12 @@ const columns = reactive<FormItem[]>([
   {
     prop: "name",
     label: "商品名称",
+    required: true,
+    type: "input",
+  },
+  {
+    prop: "spuCode",
+    label: "商品编码",
     required: true,
     type: "input",
   },
@@ -49,8 +57,8 @@ const columns = reactive<FormItem[]>([
     required: true,
     type: "switch",
     props: {
-      activeValue: 1,
-      inactiveValue: 0,
+      // activeValue: 1,
+      // inactiveValue: 0,
       activeText: "已上架",
       inactiveText: "已下架",
     },
@@ -125,8 +133,16 @@ function initData() {
   formView.value!.initData();
 }
 
+// 获取详情
 async function getInfo(id: number) {
   const { data } = await getProductInfoApi({ id });
+  for (const key in formData) {
+    if (key === "mainPictures" || key === "pictures") {
+      formData[key] = data[key].map(url => ({ url }));
+    } else {
+      formData[key] = data[key];
+    }
+  }
 }
 id.value && getInfo(id.value);
 </script>

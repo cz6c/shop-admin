@@ -8,7 +8,7 @@ export default {
   meta: {
     title: "图表",
     icon: "menu-charts",
-    orderNo: 5,
+    orderNo: 4,
   },
   redirect: "/charts/bMap",
   children: [

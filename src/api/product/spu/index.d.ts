@@ -5,6 +5,9 @@ export interface ProductItem {
   /** 商品名称 */
   name: string;
 
+  /** 商品编码 */
+  spuCode: string;
+
   /** 商品描述 */
   desc: string;
 
@@ -27,7 +30,7 @@ export interface ProductItem {
   categoryId: number;
   categoryName: string;
 
-  status: 0 | 1;
+  status: boolean;
 }
 
 // 列表

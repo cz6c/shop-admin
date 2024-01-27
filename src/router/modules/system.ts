@@ -8,7 +8,7 @@ export default {
   meta: {
     title: "组织架构",
     icon: "menu-system",
-    orderNo: 2,
+    orderNo: 3,
   },
   redirect: "/system/user",
   children: [
