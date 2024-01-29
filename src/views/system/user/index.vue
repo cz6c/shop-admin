@@ -168,3 +168,4 @@ async function del(id: number) {
     });
 }
 </script>
+@/components/TableView

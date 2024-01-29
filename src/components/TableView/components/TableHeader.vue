@@ -1,6 +1,6 @@
 <script setup lang="ts" name="TableHeader">
 import { CheckboxValueType } from "element-plus/es/components/checkbox";
-import { TableCol } from "../type";
+import { TableCol } from "../index.d";
 import { useSortable } from "@/hooks/useSortable";
 import { isNullAndUnDef } from "@/utils/is";
 import { cloneDeep } from "lodash-es";
@@ -22,6 +22,8 @@ const isIndexCol = ref(true);
  * @description: 初始化/重置
  */
 function init() {
+  console.log(props.columns);
+
   plainSortOptions.value = props.columns.map(c => {
     return { ...c, fixed: false };
   });
@@ -139,7 +141,7 @@ defineExpose({ isSelectionCol, isIndexCol });
               <div class="flex item" v-for="item in plainSortOptions" :key="item.prop">
                 <el-icon size="16" class="move"><Rank /></el-icon>
                 <el-checkbox :label="item.prop">{{ item.label }}</el-checkbox>
-                <div class="fixed">
+                <div class="fixed-btn">
                   <SvgIcon
                     name="fixed-l"
                     size="18"
@@ -218,7 +220,7 @@ defineExpose({ isSelectionCol, isIndexCol });
         flex: 1;
       }
 
-      .fixed {
+      .fixed-btn {
         display: flex;
         align-items: center;
 
@@ -244,3 +246,4 @@ defineExpose({ isSelectionCol, isIndexCol });
   }
 }
 </style>
+..

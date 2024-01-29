@@ -1,24 +1,53 @@
-<script setup lang="ts" name="GenerateSku">
+<script setup lang="tsx" name="GenerateSku">
 import { SpecificationItem, SkuItem } from "@/api/product/spu/index.d";
+import { TableCol } from "@/components/TableView/index.d";
+import { isEqual } from "lodash-es";
+import UploadImg from "@/components/Upload/UploadImg.vue";
 
 const specList = defineModel<SpecificationItem[]>("specs", { required: true });
 const skuList = defineModel<SkuItem[]>("skus", { required: true });
-
-const optionsInputVal = ref<string[]>([]);
-
-function addSpecsItem() {
-  if (specList.value.length > 3) return;
-  specList.value.push({
-    name: "",
-    options: [],
-  });
-}
-
-function handleBlur(item: SpecificationItem, idx: number) {
-  if (!optionsInputVal.value[idx] || item.options.includes(optionsInputVal.value[idx])) return;
-  item.options.push(optionsInputVal.value[idx]);
-  optionsInputVal.value[idx] = "";
-}
+const columns: TableCol<SkuItem>[] = [
+  {
+    label: "sku名称",
+    prop: "skuName",
+    render: ({ row: { skuName } }) => <el-input style="height: 30px" v-model={skuName} />,
+  },
+  {
+    label: "sku编码",
+    prop: "skuCode",
+    render: ({ row: { skuCode } }) => <el-input style="height: 30px" v-model={skuCode} />,
+  },
+  {
+    label: "sku图片",
+    prop: "picture",
+    // render: ({ row: { picture } }) => <el-image src={picture} />,
+    render: ({ row: { picture } }) => <UploadImg v-model={picture} width="80px" height="80px" />,
+  },
+  {
+    label: "销售价",
+    prop: "price",
+    render: ({ row: { price } }) => (
+      <el-input-number style={"width: 100%; height: 30px"} v-model={price} min={0.01} precision={2} controls={false} />
+    ),
+  },
+  {
+    label: "库存",
+    prop: "inventory",
+    render: ({ row: { inventory } }) => (
+      <el-input-number style={"width: 100%; height: 30px"} v-model={inventory} controls={false} />
+    ),
+  },
+];
+const columnss = computed(() => {
+  const list = specList.value
+    .filter(c => c.name)
+    .map((x, index) => ({
+      prop: x.name,
+      label: x.name,
+      render: ({ row }) => row.specVals[index],
+    }));
+  return [...list, ...columns];
+});
 
 /**
  * @description: 笛卡尔积生成sku列表
@@ -30,20 +59,84 @@ function generateSKUs(specList: SpecificationItem[]) {
 }
 
 function handleGenerate() {
-  skuList.value = generateSKUs(specList.value).map(specs => ({
-    specs: specs.map((spec, i) => `${specList.value[i].name}:${spec}`).join(";"),
-    costPrice: 0,
-    price: 0,
-    inventory: 0,
-    skuName: "",
-    picture: "",
-    skuCode: "",
-  }));
+  skuList.value = generateSKUs(specList.value).map(specs => {
+    const item = skuList.value.find(c => isEqual(c.specVals, specs));
+    return (
+      item ?? {
+        id: 0,
+        price: 0,
+        inventory: 0,
+        skuName: "",
+        picture: "",
+        skuCode: "",
+        specs: specs.map((spec, i) => `${specList.value[i].name}:${spec}`).join(";"),
+        specVals: specs,
+      }
+    );
+  });
 }
 
-const num = ref(1);
-function setPrice() {
-  skuList.value.forEach(c => (c.price = c.costPrice * num.value));
+// 新增规格项
+function addSpecItem() {
+  if (specList.value.length > 3) return;
+  specList.value.push({
+    name: "",
+    options: [],
+  });
+}
+
+// 删除规格项
+function delSpecItem(idx: number) {
+  const list = skuList.value.filter(c => c.id);
+  console.log(list);
+  ElMessageBox({
+    title: "删除规格项",
+    message: (
+      <el-table data={list}>
+        {columnss.value.map(({ prop, label }) => (
+          <el-table-column prop={prop} label={label} />
+        ))}
+      </el-table>
+    ),
+  })
+    .then(() => {
+      console.log(1);
+      specList.value.splice(idx, 1);
+      // 同步更新skuList
+      handleGenerate();
+    })
+    .catch();
+}
+
+// 新增规格值
+const optionsInputVal = ref<string[]>([]);
+function addSpecOptVal(item: SpecificationItem, idx: number) {
+  if (!optionsInputVal.value[idx] || item.options.includes(optionsInputVal.value[idx])) return;
+  item.options.push(optionsInputVal.value[idx]);
+  optionsInputVal.value[idx] = "";
+  // 同步更新skuList
+  handleGenerate();
+}
+
+// 删除规格项
+function delSpecOptVal(item: SpecificationItem, index: number) {
+  const list = skuList.value.filter(c => c.id && c.specVals.includes(item.options[index]));
+  console.log(list);
+  item.options.splice(index, 1);
+  // 同步更新skuList
+  handleGenerate();
+}
+
+// 修改规格值时同步更新sku的规格数据
+const oldVal = ref("");
+function specValInputChange(val: string, idx: number) {
+  skuList.value.forEach(c => {
+    if (c.specVals[idx] === oldVal.value) {
+      c.specVals[idx] = val;
+    }
+  });
+  // 同步更新skuList
+  handleGenerate();
 }
 </script>
 
@@ -57,93 +150,40 @@ function setPrice() {
             <span class="flex-60px">规格名：</span>
             <el-input v-model="item.name" />
           </div>
-          <el-button class="ml-8" link type="danger" @click="() => specList.splice(idx, 1)"> 删除 </el-button>
+          <el-button class="ml-8" link type="danger" @click="delSpecItem(idx)"> 删除 </el-button>
         </div>
         <div class="flex-y-center flex-wrap p-10">
           <span class="flex-60px">规格值：</span>
           <el-popover placement="bottom" trigger="hover" v-for="(value, index) in item.options" :key="index">
             <template #reference>
-              <el-tag style="height: 30px" class="mr-8" closable @close="() => item.options.splice(index, 1)">
+              <el-tag style="height: 30px" class="mr-8" closable @close="delSpecOptVal(item, index)">
                 {{ value }}
               </el-tag>
             </template>
-            <el-input style="width: 126px; height: 30px" v-model="item.options[index]" placeholder="请输入规格值" />
+            <el-input
+              style="width: 126px; height: 30px"
+              v-model="item.options[index]"
+              placeholder="请输入规格值"
+              @focus="() => (oldVal = item.options[index])"
+              @change="val => specValInputChange(val, idx)"
+            />
           </el-popover>
           <el-input
             style="width: 126px; height: 30px"
             v-model="optionsInputVal[idx]"
-            @blur="handleBlur(item, idx)"
+            @change="() => addSpecOptVal(item, idx)"
             placeholder="请输入规格值"
           />
         </div>
       </div>
     </div>
     <div class="flex-y-center bg-#F5F7FA p-10 mt-12">
-      <el-button link type="primary" @click="addSpecsItem" :disabled="specList.length > 2"> + 新增规格 </el-button>
+      <el-button link type="primary" @click="addSpecItem" :disabled="specList.length > 2"> + 新增规格 </el-button>
     </div>
     <!-- sku列表 -->
     <div class="flex-y-center justify-between mt-20 mb-10 px-10">
-      <!-- <div class="text-16">sku列表</div> -->
-      <el-button type="primary" @click="handleGenerate">生成sku列表</el-button>
-      <div>
-        <span>销售价倍数：</span>
-        <el-input-number
-          style="width: 126px; height: 30px"
-          v-model="num"
-          :min="1"
-          :max="10"
-          :precision="2"
-          :step="0.1"
-        />
-        <el-button class="ml-20" type="primary" @click="setPrice">批量设置</el-button>
-      </div>
+      <div class="text-16">sku列表</div>
     </div>
-    <el-table :data="skuList" border style="width: 100%">
-      <el-table-column prop="skuName" label="sku名称">
-        <template #default="{ row }">
-          <el-input style="height: 30px" v-model="row.skuName" />
-        </template>
-      </el-table-column>
-      <el-table-column prop="skuCode" label="sku编码">
-        <template #default="{ row }">
-          <el-input style="height: 30px" v-model="row.skuCode" />
-        </template>
-      </el-table-column>
-      <el-table-column prop="picture" label="sku图片">
-        <template #default="{ row }">
-          <UploadImg v-model="row.picture" width="80px" height="80px" />
-        </template>
-      </el-table-column>
-      <el-table-column prop="specs" label="规格" />
-      <el-table-column prop="costPrice" label="成本价">
-        <template #default="{ row }">
-          <el-input-number
-            style="height: 30px; width: 100%"
-            v-model="row.costPrice"
-            :min="0.01"
-            :precision="2"
-            :step="0.1"
-            :controls="false"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column prop="price" label="销售价">
-        <template #default="{ row }">
-          <el-input-number
-            style="width: 100%; height: 30px"
-            v-model="row.price"
-            :min="0.01"
-            :precision="2"
-            :step="0.1"
-            :controls="false"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column prop="inventory" label="库存">
-        <template #default="{ row }">
-          <el-input-number style="width: 100%; height: 30px" v-model="row.inventory" :min="0" :controls="false" />
-        </template>
-      </el-table-column>
-    </el-table>
+    <TableView :columns="columnss" :data="skuList" border />
   </div>
 </template>

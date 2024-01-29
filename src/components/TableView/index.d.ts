@@ -16,8 +16,11 @@ export type HeaderRenderScope<T> = {
   [key: string]: any;
 };
 // 表格子项配置
-export interface TableCol<T = any> extends Partial<Omit<TableColumnCtx<T>, "renderCell" | "renderHeader">> {
-  type?: "selection" | "index" | "expand" | "action";
+export interface TableCol<T = any>
+  extends Partial<Omit<TableColumnCtx<T>, "renderCell" | "renderHeader" | "prop" | "label">> {
+  prop: string;
+  label: string;
+  type?: "selection" | "index" | "expand";
   visible?: boolean;
   headerRender?: (scope: HeaderRenderScope<T>) => VNode; // 自定义表头内容渲染（tsx语法）
   render?: (scope: RenderScope<T>) => VNode | string; // 自定义单元格内容渲染（tsx语法）

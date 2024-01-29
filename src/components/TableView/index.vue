@@ -1,46 +1,26 @@
 <script lang="ts" setup name="TableView">
 import type { ElTable } from "element-plus";
-import TableHeader from "./components/TableHeader.vue";
 import TableColumn from "./components/TableColumn.vue";
-import TableFooter from "./components/TableFooter.vue";
-import SearchForm from "@/components/SearchForm/index.vue";
-import { TableCol } from "./type";
-import { useTable } from "./useTable";
-import { SearchProps } from "@/components/SearchForm/type";
-import { cloneDeep } from "lodash-es";
+import { TableCol } from "./index.d";
 
 // 表格配置
 export interface TableProps {
   columns: TableCol[]; // 列配置项  ==> 必传
-  data?: any[]; // data
-  getListApi?: (params: any) => Promise<any>;
-  beforeFetch?: (params: any) => any; // 列表搜索参数处理方法
-  afterFetch?: (data: any) => any; // 列表数据处理方法
-  searchColumns?: SearchProps[]; // 搜索配置项
-  title?: string;
-  pagination?: boolean; // 是否展示分页器
+  data: any[]; // data ==> 必传
+  loading?: boolean;
   rowKey?: string; // 行数据的 Key，用来优化 Table 的渲染。
+  isSelectionCol?: boolean;
+  isIndexCol?: boolean;
 }
 
 const props = withDefaults(defineProps<TableProps>(), {
-  title: "",
-  pagination: false,
   rowKey: "id",
+  loading: false,
+  isSelectionCol: false,
+  isIndexCol: false,
 });
 
-const { loading, apiQuery, tableData, searchParam, reset, getList, pageSizeChange, currentPageChange } =
-  useTable(props);
-
-const tableHeaderRef = ref<InstanceType<typeof TableHeader>>();
 const tableRef = ref<InstanceType<typeof ElTable>>();
-
-/**
- * @description: 更新columns
- */
-const checkedColumns = ref<TableCol[]>(cloneDeep(props.columns));
-function updateColumn(data: TableCol[]) {
-  checkedColumns.value = data;
-}
 
 /**
  * @description: 列表事件传递
@@ -55,90 +35,61 @@ const handleSelectionChange = (val: any) => {
 const handleRowClick = (row: any, column: any, event: MouseEvent) => {
   emits("row-click", row, column, event);
 };
-// 暴露给父组件参数和方法
-defineExpose({ getList });
 </script>
 <template>
   <div class="table-view">
     <!-- 表格搜索 -->
-    <div class="table-search cz-card" v-if="props?.searchColumns">
-      <SearchForm :columns="props?.searchColumns" :search-param="searchParam" @search="getList" @reset="reset" />
+    <div class="table-search cz-card">
+      <slot name="table-search"></slot>
     </div>
     <div class="table-main cz-card">
       <!-- 表格头部 -->
-      <TableHeader
-        ref="tableHeaderRef"
-        :title="props.title"
-        :columns="props.columns"
-        @update-columns="updateColumn"
-        @update-list="getList"
-      >
-        <template #tools>
-          <slot name="table-tools"> </slot>
-        </template>
-      </TableHeader>
+      <slot name="table-header"></slot>
       <!-- 表格主体 -->
       <el-table
         ref="tableRef"
         v-bind="$attrs"
-        :data="props.data ?? tableData"
-        :rowKey="props.rowKey ?? 'id'"
+        :data="props.data"
+        :rowKey="props.rowKey"
         @selection-change="handleSelectionChange"
         @row-click="handleRowClick"
-        v-loading="loading"
+        v-loading="props.loading"
       >
         <!-- selection || index  -->
-        <el-table-column
-          v-if="tableHeaderRef?.isSelectionCol"
-          align="center"
-          type="selection"
-          width="50"
-          reserve-selection
-        />
-        <el-table-column v-if="tableHeaderRef?.isIndexCol" align="center" type="index" width="60" label="序号" />
+        <el-table-column v-if="isSelectionCol" align="center" type="selection" width="50" reserve-selection />
+        <el-table-column v-if="isIndexCol" align="center" type="index" width="60" label="序号" />
         <!-- other -->
-        <template v-for="item in checkedColumns" :key="item">
-          <TableColumn :column="item" v-if="item.visible">
+        <template v-for="(item, index) in columns" :key="index">
+          <TableColumn :column="item">
             <template v-for="slot in Object.keys($slots)" #[slot]="scope">
               <slot :name="slot" v-bind="scope"></slot>
             </template>
           </TableColumn>
         </template>
-        <!-- 操作列插槽 -->
-        <el-table-column v-if="$slots.action" align="center" label="操作">
-          <template #default="scope">
-            <slot name="action" v-bind="scope"></slot>
-          </template>
-        </el-table-column>
         <!-- 默认插槽 -->
         <slot></slot>
         <!-- 插入表格最后一行之后的插槽 -->
         <template #append>
-          <slot name="append"> </slot>
+          <slot name="table-append"> </slot>
         </template>
         <!-- 无数据 -->
         <template #empty>
           <div class="table-empty">
-            <slot name="empty"> </slot>
+            <slot name="table-empty"> </slot>
           </div>
         </template>
       </el-table>
       <!-- 分页器 -->
-      <TableFooter
-        v-if="props.pagination"
-        :pageQuery="apiQuery"
-        :handleSizeChange="pageSizeChange"
-        :handleCurrentChange="currentPageChange"
-      />
+      <slot name="table-footer"></slot>
     </div>
   </div>
 </template>
 <style lang="scss" scoped>
 .table-view {
   display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
-  flex-direction: column;
 
   .table-search {
     margin-bottom: 10px;
@@ -147,11 +98,11 @@ defineExpose({ getList });
 
   .table-main {
     display: flex;
-    overflow: hidden;
-    padding: 0 16px;
-    box-sizing: border-box;
-    flex: 1;
     flex-direction: column;
+    overflow: hidden;
+    flex: 1;
+    // padding: 0 16px;
+    box-sizing: border-box;
   }
 }
 
@@ -160,3 +111,4 @@ defineExpose({ getList });
   flex: 1;
 }
 </style>
+.

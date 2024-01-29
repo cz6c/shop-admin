@@ -1,28 +1,21 @@
-import { reactive, onMounted, toRefs, computed } from "vue";
 import { isFunction } from "@/utils/is";
 import { $message } from "@/utils/message";
-import { TableProps } from "./index.vue";
-import { GetListParams } from "@/api/public/index.d";
-import { SearchProps } from "@/components/SearchForm/type";
+import { cloneDeep } from "lodash-es";
 
-interface State {
-  loading: boolean;
-  tableData: any[];
-  apiQuery: GetListParams;
-  searchParam: Record<string, any>;
+export interface Params {
+  getListApi: Fn;
+  apiQuery: Record<string, any>;
+  beforeFetch?: Fn;
+  afterFetch?: Fn;
+  columns?: TableCol;
 }
 
-export function useTable(props: TableProps) {
-  const state = reactive<State>({
+export function useTable({ getListApi, apiQuery, beforeFetch, afterFetch, columns }: Params) {
+  const state = reactive({
     loading: false,
     tableData: [],
-    apiQuery: {
-      page: 1,
-      limit: 20,
-      total: 0,
-    },
-    searchParam: {},
   });
+  const apiQueryDefault = cloneDeep(apiQuery);
 
   /**
    * @description: 获取列表数据
@@ -30,18 +23,22 @@ export function useTable(props: TableProps) {
   async function getList() {
     try {
       state.loading = true;
-      let params = props.pagination ? { ...state.apiQuery, ...state.searchParam } : { ...state.searchParam };
-      if (props.beforeFetch && isFunction(props.beforeFetch)) {
-        params = props.beforeFetch(params);
+      const params = {};
+      for (const key in apiQuery) {
+        if (Object.prototype.hasOwnProperty.call(apiQuery, key)) {
+          if (apiQuery[key]) params[key] = apiQuery[key];
+        }
       }
-      const { data } = props.getListApi && isFunction(props.getListApi) && (await props.getListApi(params));
-      state.tableData = props.pagination ? data.list : data;
-      if (props.afterFetch && isFunction(props.afterFetch)) {
-        state.tableData = (await props.afterFetch(state.tableData)) || state.tableData;
+      if (beforeFetch && isFunction(beforeFetch)) {
+        params = beforeFetch(params);
       }
-      const { page, limit, total } = data;
-      props.pagination && Object.assign(state.apiQuery, { page, limit, total });
+      const { data } = getListApi && isFunction(getListApi) && (await getListApi(params));
+      state.tableData = data.list;
+      if (afterFetch && isFunction(afterFetch)) {
+        state.tableData = (await afterFetch(state.tableData)) || state.tableData;
+      }
     } catch (error: any) {
+      console.log(error);
       $message.warning(error.message);
     } finally {
       state.loading = false;
@@ -53,8 +50,8 @@ export function useTable(props: TableProps) {
    * @param {number} pageSize
    */
   const pageSizeChange = (pageSize: number) => {
-    state.apiQuery.page = 1;
-    state.apiQuery.limit = pageSize;
+    apiQuery.page = 1;
+    apiQuery.limit = pageSize;
     getList();
   };
 
@@ -63,40 +60,33 @@ export function useTable(props: TableProps) {
    * @param {number} currentPage
    */
   const currentPageChange = (currentPage: number) => {
-    state.apiQuery.page = currentPage;
+    apiQuery.page = currentPage;
     getList();
   };
 
-  // 计算搜索项的初始值
-  // const initData = computed(() => {
-  //   const temp: Record<string, any> = {};
-  //   const list = Array.prototype.concat(...props?.searchColumns);
-  //   list.forEach((item: SearchProps) => {
-  //     const { prop, defaultValue } = item;
-  //     temp[prop] = defaultValue;
-  //   });
-  //   return temp;
-  // });
   /**
    * @description: 重置搜索
    */
   function reset() {
-    // Object.assign(state.searchParam, initData.value);
-    Object.assign(state.apiQuery, {
-      page: 1,
-      limit: 20,
-      total: 0,
-    });
+    Object.assign(apiQuery, apiQueryDefault);
     getList();
   }
-  onMounted(() => {
-    reset();
-  });
+
+  /**
+   * @description: 更新columns
+   */
+  const checkedColumns = ref<TableCol[]>(cloneDeep(columns));
+  function updateColumn(data: TableCol[]) {
+    checkedColumns.value = data;
+  }
+
   return {
     ...toRefs(state),
     getList,
     reset,
     pageSizeChange,
     currentPageChange,
+    checkedColumns,
+    updateColumn,
   };
 }

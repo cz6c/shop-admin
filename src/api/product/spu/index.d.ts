@@ -40,14 +40,12 @@ export interface ProductListParams extends GetListParams {
 }
 
 export interface SkuItem {
+  id: number;
   /** sku名称 */
   skuName: string;
 
   /** 库存 */
   inventory: number;
-
-  /** 成本价 */
-  costPrice: number;
 
   /** 当前价格 */
   price: number;
@@ -60,6 +58,8 @@ export interface SkuItem {
 
   /** 规格集合[ 规格信息 ] */
   specs: string;
+
+  specVals: string[];
 }
 
 export type SpecificationItem = {
