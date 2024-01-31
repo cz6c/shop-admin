@@ -87,6 +87,7 @@ export function useTable({ getListApi, apiQuery, beforeFetch, afterFetch }: Para
     search,
     reset,
     pagination: {
+      pageQuery: apiQuery,
       handleSizeChange,
       handleCurrentChange,
     },

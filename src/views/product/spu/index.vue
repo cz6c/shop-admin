@@ -57,7 +57,7 @@ const columns: TableCol<ProductItem>[] = [
   {
     label: "上架状态",
     prop: "status",
-    render: ({ row }) => <el-switch v-model={row.status} click={statusChange(row.status, row.id)} />,
+    render: ({ row }) => <el-switch v-model={row.status} onClick={() => statusChange(row.status, row.id)} />,
   },
   {
     label: "创建时间",
@@ -66,8 +66,9 @@ const columns: TableCol<ProductItem>[] = [
 ];
 const selectList = ref<ProductItem[]>([]);
 const selection: Selection<ProductItem> = {
+  fixed: true,
   selectedRows: selectList.value,
-  onChange(selection: ProductItem[]) {
+  onChange(selection) {
     selectList.value = selection || [];
   },
 };
@@ -162,7 +163,7 @@ async function del(id: number) {
         :loading="loading"
         showHeader
         title="商品列表"
-        :pagination="{ ...pagination, pageQuery: apiQuery }"
+        :pagination="pagination"
         :selection="selection"
       >
         <template #header-tools>

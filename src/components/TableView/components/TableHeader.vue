@@ -20,7 +20,6 @@ const isIndeterminate = ref(true);
  * @description: 初始化/重置
  */
 function init() {
-  console.log(props.columns);
   plainSortOptions.value = props.columns.map(c => {
     return { ...c, fixed: false };
   });

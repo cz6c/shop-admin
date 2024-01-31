@@ -16,6 +16,8 @@ export interface TableProps {
   title?: string; // 列表标题 需 showHeader 为true
   pagination?: Pagination; // 分页器
   selection?: Selection; // 多选配置
+  actionWidth?: string; // 操作列宽度
+  actionFixed?: boolean; // 操作列是否右浮固定
 }
 
 const props = withDefaults(defineProps<TableProps>(), {
@@ -26,6 +28,8 @@ const props = withDefaults(defineProps<TableProps>(), {
   title: "",
   pagination: null,
   selection: null,
+  actionWidth: "150",
+  actionFixed: true,
 });
 
 const tableRef = ref<InstanceType<typeof ElTable>>();
@@ -82,7 +86,7 @@ defineExpose({
         align="center"
         type="selection"
         width="50"
-        :fixed="selection.fixed ? 'left' : ''"
+        :fixed="selection.fixed"
         reserve-selection
       />
       <el-table-column v-if="isIndexCol" align="center" type="index" width="50" label="序号" />
@@ -97,7 +101,13 @@ defineExpose({
         </template>
       </template>
       <!-- 操作列插槽 -->
-      <el-table-column v-if="$slots.action" align="center" label="操作">
+      <el-table-column
+        v-if="$slots.action"
+        align="center"
+        label="操作"
+        :width="actionWidth"
+        :fixed="actionFixed ? 'right' : null"
+      >
         <template #default="scope">
           <slot name="action" v-bind="scope"></slot>
         </template>
