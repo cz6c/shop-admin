@@ -1,6 +1,6 @@
 <script setup lang="tsx" name="Spu">
 import TableView from "@/components/TableView/index.vue";
-import { TableCol, TableViewInstance } from "@/components/TableView/index.d";
+import { TableCol, TableViewInstance, Selection } from "@/components/TableView/index.d";
 import { useTable } from "@/components/TableView/useTable";
 import { SearchProps } from "@/components/SearchForm/type";
 import { getProductListApi, statusChangeApi, delProductApi } from "@/api/product/spu";
@@ -13,28 +13,21 @@ const statusApi = statusChangeApi;
 
 const router = useRouter();
 
-/**
- * @description: 编辑
- * @param {*} id
- */
-function goForm(id?: number) {
-  console.log(1);
-  router.push({
-    name: "SpuForm",
-    query: {
-      id,
+const searchList = reactive<SearchProps[]>([
+  {
+    el: "input",
+    prop: "name",
+    label: "商品名称",
+  },
+  {
+    el: "date-picker",
+    prop: "createTime",
+    label: "创建时间",
+    props: {
+      type: "date",
     },
-  });
-}
-function goDetails(id: number) {
-  router.push({
-    name: "SpuDetails",
-    query: {
-      id,
-    },
-  });
-}
-
+  },
+]);
 const columns: TableCol<ProductItem>[] = [
   {
     label: "商品名称",
@@ -62,67 +55,58 @@ const columns: TableCol<ProductItem>[] = [
     prop: "price",
   },
   {
-    label: "创建时间",
-    prop: "createTime",
+    label: "上架状态",
+    prop: "status",
+    render: ({ row }) => <el-switch v-model={row.status} click={statusChange(row.status, row.id)} />,
   },
   {
-    label: "操作",
-    prop: "action",
-    render: ({ row }) => (
-      <>
-        {/* <el-button link={true} type="primary" size="small" onClick={goDetails(row.id)}>
-          详情
-        </el-button>
-        <el-button link={true} type="primary" size="small" onClick={goForm(row.id)}>
-          编辑
-        </el-button>
-        <el-button link={true} type="danger" size="small" onClick={del(row.id)}>
-          删除
-        </el-button> */}
-      </>
-    ),
+    label: "创建时间",
+    prop: "createTime",
   },
 ];
-const searchList = reactive<SearchProps[]>([
-  {
-    el: "input",
-    prop: "name",
-    label: "商品名称",
-    defaultValue: "",
+const selectList = ref<ProductItem[]>([]);
+const selection: Selection<ProductItem> = {
+  selectedRows: selectList.value,
+  onChange(selection: ProductItem[]) {
+    selectList.value = selection || [];
   },
-  {
-    el: "date-picker",
-    defaultValue: "",
-    prop: "createTime",
-    label: "创建时间",
-    props: {
-      type: "date",
-    },
-  },
-]);
+};
 const apiQuery = reactive({
   page: 1,
   limit: 20,
   total: 0,
+  name: "",
+  createTime: "",
 });
 
 const tableRef = ref<TableViewInstance>();
 
-const { loading, tableData, checkedColumns, reset, getList, pageSizeChange, currentPageChange, updateColumn } =
-  useTable({
-    getListApi,
-    apiQuery,
-    columns,
-  });
+const { loading, tableData, reset, search, getList, pagination } = useTable({
+  getListApi,
+  apiQuery,
+});
 getList();
 
 /**
- * @description: 列表选中
- * @param {*} selection
+ * @description: 编辑
+ * @param {*} id
  */
-const selectList: any = ref([]);
-function selectionChange(selection: any[]) {
-  selectList.value = selection || [];
+function goForm(id?: number) {
+  console.log(1);
+  router.push({
+    name: "SpuForm",
+    query: {
+      id,
+    },
+  });
+}
+function goDetails(id: number) {
+  router.push({
+    name: "SpuDetails",
+    query: {
+      id,
+    },
+  });
 }
 
 /**
@@ -130,7 +114,7 @@ function selectionChange(selection: any[]) {
  * @param {*} status
  * @param {*} id
  */
-async function statusChange(status: 0 | 1, id: number) {
+async function statusChange(status: boolean, id: number) {
   console.log(id, status);
   try {
     await statusApi({ status, id });
@@ -166,46 +150,31 @@ async function del(id: number) {
 </script>
 
 <template>
-  <div class="app-page">
-    <TableView
-      ref="tableRef"
-      :columns="columns"
-      :data="tableData"
-      :loading="loading"
-      @selection-change="selectionChange"
-    >
-      <template #table-search>
-        <SearchForm :columns="searchList" :search-param="apiQuery" @search="getList" @reset="reset" />
-      </template>
-      <template #table-header>
-        <TableHeader
-          ref="tableHeaderRef"
-          title="商品列表"
-          :columns="columns"
-          @update-columns="updateColumn"
-          @update-list="getList"
-        >
-          <template #tools>
-            <el-button type="primary" @click="goForm()">新增商品</el-button>
-          </template>
-        </TableHeader>
-      </template>
-      <template #table-footer>
-        <TableFooter
-          :pageQuery="apiQuery"
-          :handleSizeChange="pageSizeChange"
-          :handleCurrentChange="currentPageChange"
-        />
-      </template>
-      <template #status="{ row }">
-        <el-switch
-          v-model="row.status"
-          :active-value="1"
-          :inactive-value="0"
-          @click="statusChange(row.status, row.id)"
-        />
-      </template>
-    </TableView>
+  <div class="app-page flex flex-col">
+    <div class="cz-card mb-10 p16 pb0">
+      <SearchForm :columns="searchList" :search-param="apiQuery" @search="search" @reset="reset" />
+    </div>
+    <div class="cz-card flex-1-hidden px16">
+      <TableView
+        ref="tableRef"
+        :columns="columns"
+        :data="tableData"
+        :loading="loading"
+        showHeader
+        title="商品列表"
+        :pagination="{ ...pagination, pageQuery: apiQuery }"
+        :selection="selection"
+      >
+        <template #header-tools>
+          <el-button type="primary" @click="goForm()">新增商品</el-button>
+        </template>
+        <template #action="{ row }">
+          <el-button link type="primary" size="small" @click="goDetails(row.id)">详情</el-button>
+          <el-button link type="primary" size="small" @click="goForm(row.id)">编辑</el-button>
+          <el-button link type="danger" size="small" @click="del(row.id)">删除</el-button>
+        </template>
+      </TableView>
+    </div>
   </div>
 </template>
 

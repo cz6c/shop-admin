@@ -1,13 +1,13 @@
 <script setup lang="ts" name="TableFooter">
 import { GetListParams } from "@/api/public/index.d";
 
-interface PaginationProps {
+export interface Pagination {
   pageQuery: GetListParams;
   handleSizeChange: (size: number) => void;
   handleCurrentChange: (currentPage: number) => void;
 }
 
-const props = defineProps<PaginationProps>();
+const props = defineProps<Pagination>();
 </script>
 <template>
   <div class="table-footer">

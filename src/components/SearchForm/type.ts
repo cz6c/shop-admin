@@ -28,5 +28,4 @@ export type SearchProps = {
   order?: number; // 搜索项排序（从大到小）
   span?: number; // 搜索项所占用的列数，默认为1列
   offset?: number; // 搜索字段左侧偏移列数
-  defaultValue?: string | number | boolean | any[]; // 搜索项默认值
 };

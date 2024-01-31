@@ -1,8 +1,8 @@
 <script setup lang="tsx" name="GenerateSku">
 import { SpecificationItem, SkuItem } from "@/api/product/spu/index.d";
-import { TableCol } from "@/components/TableView/index.d";
 import { isEqual } from "lodash-es";
 import UploadImg from "@/components/Upload/UploadImg.vue";
+import { TableCol } from "@/components/TableView";
 
 const specList = defineModel<SpecificationItem[]>("specs", { required: true });
 const skuList = defineModel<SkuItem[]>("skus", { required: true });
@@ -10,31 +10,31 @@ const columns: TableCol<SkuItem>[] = [
   {
     label: "sku名称",
     prop: "skuName",
-    render: ({ row: { skuName } }) => <el-input style="height: 30px" v-model={skuName} />,
+    render: ({ row }) => <el-input style="height: 30px" v-model={row.skuName} />,
   },
   {
     label: "sku编码",
     prop: "skuCode",
-    render: ({ row: { skuCode } }) => <el-input style="height: 30px" v-model={skuCode} />,
+    render: ({ row }) => <el-input style="height: 30px" v-model={row.skuCode} />,
   },
   {
     label: "sku图片",
     prop: "picture",
-    // render: ({ row: { picture } }) => <el-image src={picture} />,
-    render: ({ row: { picture } }) => <UploadImg v-model={picture} width="80px" height="80px" />,
+    // render: ({ row }) => <el-image src={row.picture} />,
+    render: ({ row }) => <UploadImg v-model={row.picture} width="80px" height="80px" />,
   },
   {
     label: "销售价",
     prop: "price",
-    render: ({ row: { price } }) => (
-      <el-input-number style={"width: 100%; height: 30px"} v-model={price} min={0.01} precision={2} controls={false} />
+    render: ({ row }) => (
+      <el-input-number style={"width: 100%; height: 30px"} v-model={row.price} min={0} precision={2} controls={false} />
     ),
   },
   {
     label: "库存",
     prop: "inventory",
-    render: ({ row: { inventory } }) => (
-      <el-input-number style={"width: 100%; height: 30px"} v-model={inventory} controls={false} />
+    render: ({ row }) => (
+      <el-input-number style={"width: 100%; height: 30px"} v-model={row.inventory} min={0} controls={false} />
     ),
   },
 ];
@@ -64,8 +64,8 @@ function handleGenerate() {
     return (
       item ?? {
         id: 0,
-        price: 0,
-        inventory: 0,
+        price: undefined,
+        inventory: undefined,
         skuName: "",
         picture: "",
         skuCode: "",

@@ -1,16 +1,16 @@
+import { GetListParams } from "@/api/public/index.d";
 import { isFunction } from "@/utils/is";
 import { $message } from "@/utils/message";
 import { cloneDeep } from "lodash-es";
 
 export interface Params {
   getListApi: Fn;
-  apiQuery: Record<string, any>;
+  apiQuery: Record<string, any> & GetListParams;
   beforeFetch?: Fn;
   afterFetch?: Fn;
-  columns?: TableCol;
 }
 
-export function useTable({ getListApi, apiQuery, beforeFetch, afterFetch, columns }: Params) {
+export function useTable({ getListApi, apiQuery, beforeFetch, afterFetch }: Params) {
   const state = reactive({
     loading: false,
     tableData: [],
@@ -23,7 +23,7 @@ export function useTable({ getListApi, apiQuery, beforeFetch, afterFetch, column
   async function getList() {
     try {
       state.loading = true;
-      const params = {};
+      let params = {};
       for (const key in apiQuery) {
         if (Object.prototype.hasOwnProperty.call(apiQuery, key)) {
           if (apiQuery[key]) params[key] = apiQuery[key];
@@ -34,6 +34,7 @@ export function useTable({ getListApi, apiQuery, beforeFetch, afterFetch, column
       }
       const { data } = getListApi && isFunction(getListApi) && (await getListApi(params));
       state.tableData = data.list;
+      apiQuery.total = data.total;
       if (afterFetch && isFunction(afterFetch)) {
         state.tableData = (await afterFetch(state.tableData)) || state.tableData;
       }
@@ -49,7 +50,7 @@ export function useTable({ getListApi, apiQuery, beforeFetch, afterFetch, column
    * @description: 切换pageSize
    * @param {number} pageSize
    */
-  const pageSizeChange = (pageSize: number) => {
+  const handleSizeChange = (pageSize: number) => {
     apiQuery.page = 1;
     apiQuery.limit = pageSize;
     getList();
@@ -59,10 +60,18 @@ export function useTable({ getListApi, apiQuery, beforeFetch, afterFetch, column
    * @description: 切换currentPage
    * @param {number} currentPage
    */
-  const currentPageChange = (currentPage: number) => {
+  const handleCurrentChange = (currentPage: number) => {
     apiQuery.page = currentPage;
     getList();
   };
+
+  /**
+   * @description: 搜索
+   */
+  function search() {
+    apiQuery.page = 1;
+    getList();
+  }
 
   /**
    * @description: 重置搜索
@@ -72,21 +81,14 @@ export function useTable({ getListApi, apiQuery, beforeFetch, afterFetch, column
     getList();
   }
 
-  /**
-   * @description: 更新columns
-   */
-  const checkedColumns = ref<TableCol[]>(cloneDeep(columns));
-  function updateColumn(data: TableCol[]) {
-    checkedColumns.value = data;
-  }
-
   return {
     ...toRefs(state),
     getList,
+    search,
     reset,
-    pageSizeChange,
-    currentPageChange,
-    checkedColumns,
-    updateColumn,
+    pagination: {
+      handleSizeChange,
+      handleCurrentChange,
+    },
   };
 }
