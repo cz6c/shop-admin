@@ -60,7 +60,7 @@ function initData() {
 }
 
 const props = defineProps<{
-  id: number;
+  id: string;
 }>();
 const emit = defineEmits<{
   updateList: [];
@@ -78,7 +78,7 @@ async function handleOpen() {
 /**
  * @description: 获取详情
  */
-async function getInfo(id: number) {
+async function getInfo(id: string) {
   const { data } = await getCategoryInfoApi({ id });
   for (const key in formData) {
     (formData as { [key: string]: any })[key] = (data as { [key: string]: any })[key];

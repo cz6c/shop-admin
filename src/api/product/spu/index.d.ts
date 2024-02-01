@@ -1,7 +1,8 @@
 import { GetListParams, GetListResponse } from "@/api/public/index.d";
 // 详情
 export interface ProductItem {
-  id: number;
+  id: string;
+
   /** 商品名称 */
   name: string;
 
@@ -27,10 +28,12 @@ export interface ProductItem {
   specs: SpecificationItem[];
 
   /** 多对一分类 */
-  categoryId: number;
+  categoryId: string;
   categoryName: string;
 
   status: boolean;
+
+  createTime: string;
 }
 
 // 列表
@@ -40,7 +43,8 @@ export interface ProductListParams extends GetListParams {
 }
 
 export interface SkuItem {
-  id: number;
+  id: string;
+
   /** sku名称 */
   skuName: string;
 
@@ -57,12 +61,12 @@ export interface SkuItem {
   skuCode: string;
 
   /** 规格集合[ 规格信息 ] */
-  specs: string;
-
   specVals: string[];
 }
 
 export type SpecificationItem = {
+  id: string;
+
   /** 规格名称 */
   name: string;
 

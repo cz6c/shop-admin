@@ -33,7 +33,7 @@ export function useTable({ getListApi, apiQuery, beforeFetch, afterFetch }: Para
         params = beforeFetch(params);
       }
       const { data } = getListApi && isFunction(getListApi) && (await getListApi(params));
-      state.tableData = data.list;
+      state.tableData = data.list ?? data;
       apiQuery.total = data.total;
       if (afterFetch && isFunction(afterFetch)) {
         state.tableData = (await afterFetch(state.tableData)) || state.tableData;

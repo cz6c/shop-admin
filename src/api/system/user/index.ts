@@ -11,6 +11,6 @@ export const saveUserApi = createPost<UserInfo, never>("/user/save");
 // 编辑
 export const updateUserApi = createPost<UserInfo, never>("/user/update");
 // 状态切换
-export const statusChangeApi = createPost<{ id: number; status: string | number | boolean }, never>("/user/status");
+export const statusChangeApi = createPost<{ id: string; status: string | number | boolean }, never>("/user/status");
 // 删除
-export const delUserApi = createPost<{ id: number }, never>("/user/del");
+export const delUserApi = createPost<{ id: string }, never>("/user/del");

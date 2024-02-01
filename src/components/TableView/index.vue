@@ -28,7 +28,7 @@ const props = withDefaults(defineProps<TableProps>(), {
   title: "",
   pagination: null,
   selection: null,
-  actionWidth: "150",
+  actionWidth: "120",
   actionFixed: true,
 });
 
@@ -76,6 +76,10 @@ defineExpose({
       v-bind="$attrs"
       :data="data"
       :rowKey="rowKey"
+      :tooltip-options="{
+        'popper-class': 'table-tooltip-popper',
+      }"
+      showOverflowTooltip
       @selection-change="selection && selection.onChange"
       @row-click="handleRowClick"
       v-loading="loading"
@@ -104,6 +108,7 @@ defineExpose({
       <el-table-column
         v-if="$slots.action"
         align="center"
+        :showOverflowTooltip="false"
         label="操作"
         :width="actionWidth"
         :fixed="actionFixed ? 'right' : null"
@@ -140,5 +145,10 @@ defineExpose({
 // el-table 表格样式
 :deep(.el-table) {
   flex: 1;
+}
+</style>
+<style lang="scss">
+.table-tooltip-popper {
+  max-width: 260px;
 }
 </style>

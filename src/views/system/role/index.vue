@@ -121,7 +121,7 @@ function add() {
  * @description: 编辑
  * @param {*} id
  */
-function edit(id: number) {
+function edit(id: string) {
   _id.value = id;
   _isEdit.value = true;
 }
@@ -130,7 +130,7 @@ function edit(id: number) {
  * @param {*} status
  * @param {*} id
  */
-async function statusChange(status: 0 | 1, id: number) {
+async function statusChange(status: 0 | 1, id: string) {
   console.log(id, status);
   try {
     await statusApi({ status, id });
@@ -144,7 +144,7 @@ async function statusChange(status: 0 | 1, id: number) {
  * @description: 删除
  * @param {*} id
  */
-async function del(id: number) {
+async function del(id: string) {
   ElMessageBox.confirm("proxy will permanently delete the file. Continue?", "Warning", {
     confirmButtonText: "OK",
     cancelButtonText: "Cancel",

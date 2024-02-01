@@ -14,7 +14,7 @@ import { useMultiTagsStore } from "./multiTags";
 import { filterTree } from "@/utils/tree";
 
 interface authStoreState {
-  id: number;
+  id: string;
   username: string;
   avatar: string;
   dynamicRoutes: AppRouteRecordRaw[];

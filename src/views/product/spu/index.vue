@@ -6,6 +6,7 @@ import { SearchProps } from "@/components/SearchForm/type";
 import { getProductListApi, statusChangeApi, delProductApi } from "@/api/product/spu";
 import { ProductItem } from "@/api/product/spu/index.d";
 import { $message } from "@/utils/message";
+import { dayjs } from "element-plus";
 
 const getListApi = getProductListApi;
 const delApi = delProductApi;
@@ -62,6 +63,8 @@ const columns: TableCol<ProductItem>[] = [
   {
     label: "创建时间",
     prop: "createTime",
+    width: 160,
+    formatter: ({ row }) => dayjs(row.createTime).format("YYYY/MM/DD HH:mm:ss"),
   },
 ];
 const selectList = ref<ProductItem[]>([]);
@@ -92,7 +95,7 @@ getList();
  * @description: 编辑
  * @param {*} id
  */
-function goForm(id?: number) {
+function goForm(id?: string) {
   console.log(1);
   router.push({
     name: "SpuForm",
@@ -101,7 +104,7 @@ function goForm(id?: number) {
     },
   });
 }
-function goDetails(id: number) {
+function goDetails(id: string) {
   router.push({
     name: "SpuDetails",
     query: {
@@ -115,7 +118,7 @@ function goDetails(id: number) {
  * @param {*} status
  * @param {*} id
  */
-async function statusChange(status: boolean, id: number) {
+async function statusChange(status: boolean, id: string) {
   console.log(id, status);
   try {
     await statusApi({ status, id });
@@ -129,7 +132,7 @@ async function statusChange(status: boolean, id: number) {
  * @description: 删除
  * @param {*} id
  */
-async function del(id: number) {
+async function del(id: string) {
   ElMessageBox.confirm("proxy will permanently delete the file. Continue?", "Warning", {
     confirmButtonText: "OK",
     cancelButtonText: "Cancel",

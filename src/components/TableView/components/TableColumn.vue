@@ -12,7 +12,7 @@ const slots = useSlots();
 
 // 渲染表格数据
 const renderCellData = (item: TableCol, scope: RenderScope<any>) => {
-  return formatValue(handleRowAccordingToProp(scope.row, item.prop));
+  return formatValue(item.formatter ? item.formatter(scope) : handleRowAccordingToProp(scope.row, item.prop));
 };
 
 const RenderTableColumn = (item: TableCol) => {

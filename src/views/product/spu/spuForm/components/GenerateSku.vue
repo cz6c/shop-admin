@@ -63,13 +63,12 @@ function handleGenerate() {
     const item = skuList.value.find(c => isEqual(c.specVals, specs));
     return (
       item ?? {
-        id: 0,
+        id: undefined,
         price: undefined,
         inventory: undefined,
-        skuName: "",
+        skuName: specs.map((spec, i) => `${specList.value[i].name}:${spec}`).join(";"),
         picture: "",
         skuCode: "",
-        specs: specs.map((spec, i) => `${specList.value[i].name}:${spec}`).join(";"),
         specVals: specs,
       }
     );
@@ -80,6 +79,7 @@ function handleGenerate() {
 function addSpecItem() {
   if (specList.value.length > 3) return;
   specList.value.push({
+    id: undefined,
     name: "",
     options: [],
   });

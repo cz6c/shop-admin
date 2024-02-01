@@ -22,9 +22,9 @@ function createPermissionGuard(router: Router) {
       if (to.path === RouterEnum.BASE_LOGIN_PATH) {
         next((to.query?.redirect as string) || "/");
       } else {
-        console.log("用户信息", authStore.id);
         // 验证用户信息
         if (authStore.id) {
+          console.log("用户信息", authStore.id);
           next();
         } else {
           try {
@@ -56,6 +56,9 @@ function createPermissionGuard(router: Router) {
         next({
           path: RouterEnum.BASE_LOGIN_PATH,
           replace: true,
+          query: {
+            redirect: `${to.fullPath}`,
+          },
         });
       }
     }

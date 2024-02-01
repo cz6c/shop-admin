@@ -5,10 +5,10 @@ import { CategoryItem } from "./index.d";
 export const getCategoryTreesApi = createGet<never, CategoryItem[]>("/category/trees");
 
 // 获取信息
-export const getCategoryInfoApi = createGet<{ id: number }, CategoryItem>("/category/info");
+export const getCategoryInfoApi = createGet<{ id: string }, CategoryItem>("/category/info");
 // 新增
 export const createCategoryApi = createPost<Partial<CategoryItem>, never>("/category/create");
 // 编辑
 export const updateCategoryApi = createPost<Partial<CategoryItem>, never>("/category/update");
 // 删除
-export const delCategoryApi = createPost<{ id: number }, never>("/category/delete");
+export const delCategoryApi = createPost<{ id: string }, never>("/category/delete");

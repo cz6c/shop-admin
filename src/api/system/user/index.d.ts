@@ -1,8 +1,8 @@
 import { GetListParams, GetListResponse } from "@/api/public/index.d";
 // 详情
 export interface UserItem {
-  id: number;
-  roleId: number | string;
+  id: string;
+  roleId: string;
   username: string;
   avatar: string;
   status: 0 | 1;

@@ -14,7 +14,7 @@ const formData = reactive({
   spuCode: "",
   categoryIds: [],
   desc: "",
-  price: 0,
+  price: undefined,
   mainPictures: [],
   pictures: [],
   status: false,
@@ -100,7 +100,7 @@ const formView = ref<FormViewInstance>();
 
 const router = useRouter();
 
-const id = computed(() => Number(router.currentRoute.value.query.id) || 0);
+const id = computed(() => router.currentRoute.value.query.id || "") as ComputedRef<string>;
 
 const loading = ref(false);
 const sumbit = () => {
@@ -134,7 +134,7 @@ function initData() {
 }
 
 // 获取详情
-async function getInfo(id: number) {
+async function getInfo(id: string) {
   const { data } = await getProductInfoApi({ id });
   for (const key in formData) {
     if (key === "mainPictures" || key === "pictures") {

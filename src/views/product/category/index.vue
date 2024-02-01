@@ -1,30 +1,10 @@
-<template>
-  <div class="app-page">
-    <TableView
-      ref="tableRef"
-      :columns="columns"
-      :getListApi="getListApi"
-      title="分类列表"
-      @selection-change="selectionChange"
-    >
-      <template #table-tools>
-        <el-button type="primary" @click="add">新增分类</el-button>
-      </template>
-      <template #action="{ row }">
-        <el-button link type="primary" size="small" @click="edit(row.id)">编辑</el-button>
-        <el-button link type="danger" size="small" @click="del(row.id)">删除</el-button>
-      </template>
-    </TableView>
-    <CategoryFormDrawer v-model="_isEdit" :id="_id" @update-list="tableRef?.getList" />
-  </div>
-</template>
 <script setup lang="ts" name="Category">
-import { TableCol, TableViewInstance } from "@/components/TableView/type";
+import { TableCol, TableViewInstance } from "@/components/TableView";
 import { getCategoryTreesApi, delCategoryApi } from "@/api/product/category";
 import { CategoryItem } from "@/api/product/category/index.d";
 import CategoryFormDrawer from "./components/CategoryFormDrawer.vue";
-import { ElMessageBox } from "element-plus";
 import { $message } from "@/utils/message";
+import { useTable } from "@/components/TableView/useTable";
 
 const getListApi = getCategoryTreesApi;
 const delApi = delCategoryApi;
@@ -42,29 +22,26 @@ const columns: TableCol<CategoryItem>[] = [
 
 const tableRef = ref<TableViewInstance>();
 
-/**
- * @description: 列表选中
- * @param {*} selection
- */
-const selectList: any = ref([]);
-function selectionChange(selection: any[]) {
-  selectList.value = selection || [];
-}
+const { loading, tableData, getList } = useTable({
+  getListApi,
+  apiQuery: {},
+});
+getList();
 
 const _isEdit = ref(false);
-const _id = ref(0);
+const _id = ref("");
 /**
  * @description: 新增
  */
 function add() {
-  _id.value = 0;
+  _id.value = "";
   _isEdit.value = true;
 }
 /**
  * @description: 编辑
  * @param {*} id
  */
-function edit(id: number) {
+function edit(id: string) {
   _id.value = id;
   _isEdit.value = true;
 }
@@ -73,7 +50,7 @@ function edit(id: number) {
  * @description: 删除
  * @param {*} id
  */
-async function del(id: number) {
+async function del(id: string) {
   ElMessageBox.confirm("proxy will permanently delete the file. Continue?", "Warning", {
     confirmButtonText: "OK",
     cancelButtonText: "Cancel",
@@ -82,7 +59,7 @@ async function del(id: number) {
     .then(async () => {
       try {
         await delApi({ id });
-        tableRef?.value?.getList();
+        getList();
         $message.success(`Delete completed`);
       } catch (error: any) {
         $message.error(error.message);
@@ -93,4 +70,18 @@ async function del(id: number) {
     });
 }
 </script>
-@/components/TableView
+
+<template>
+  <div class="app-page cz-card px16">
+    <TableView ref="tableRef" :columns="columns" :data="tableData" :loading="loading" showHeader title="分类列表">
+      <template #header-tools>
+        <el-button type="primary" @click="add">新增分类</el-button>
+      </template>
+      <template #action="{ row }">
+        <el-button link type="primary" size="small" @click="edit(row.id)">编辑</el-button>
+        <el-button link type="danger" size="small" @click="del(row.id)">删除</el-button>
+      </template>
+    </TableView>
+    <CategoryFormDrawer v-model="_isEdit" :id="_id" @update-list="getList" />
+  </div>
+</template>

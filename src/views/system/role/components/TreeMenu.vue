@@ -71,7 +71,7 @@ function getCheckedKeys() {
 /**
  * @description: 设置目前选中的节点
  */
-function setCheckedKeys(ids: number[]) {
+function setCheckedKeys(ids: string[]) {
   const arr = ids.filter(c => !pids.value.includes(c));
   treeRef.value!.setCheckedKeys(arr);
 }
