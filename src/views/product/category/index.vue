@@ -1,4 +1,4 @@
-<script setup lang="ts" name="Category">
+<script setup lang="tsx" name="Category">
 import { TableCol, TableViewInstance } from "@/components/TableView";
 import { getCategoryTreesApi, delCategoryApi } from "@/api/product/category";
 import { CategoryItem } from "@/api/product/category/index.d";
@@ -18,6 +18,22 @@ const columns: TableCol<CategoryItem>[] = [
     label: "创建时间",
     prop: "createTime",
   },
+  {
+    label: "操作",
+    prop: "action",
+    width: 140,
+    fixed: "right",
+    render: ({ row }) => (
+      <>
+        <el-button link type="primary" size="small" onClick={() => goForm(row.id)}>
+          编辑
+        </el-button>
+        <el-button link type="danger" size="small" onClick={() => del(row.id)}>
+          删除
+        </el-button>
+      </>
+    ),
+  },
 ];
 
 const tableRef = ref<TableViewInstance>();
@@ -28,22 +44,15 @@ const { loading, tableData, getList } = useTable({
 });
 getList();
 
-const _isEdit = ref(false);
-const _id = ref("");
 /**
- * @description: 新增
- */
-function add() {
-  _id.value = "";
-  _isEdit.value = true;
-}
-/**
- * @description: 编辑
+ * @description: 新增/编辑
  * @param {*} id
  */
-function edit(id: string) {
-  _id.value = id;
-  _isEdit.value = true;
+const isEdit = ref(false);
+const nowId = ref("");
+function goForm(id?: string) {
+  nowId.value = id || "";
+  isEdit.value = true;
 }
 
 /**
@@ -51,16 +60,14 @@ function edit(id: string) {
  * @param {*} id
  */
 async function del(id: string) {
-  ElMessageBox.confirm("proxy will permanently delete the file. Continue?", "Warning", {
-    confirmButtonText: "OK",
-    cancelButtonText: "Cancel",
+  ElMessageBox.confirm("确定删除改分类吗?", "删除分类", {
     type: "warning",
   })
     .then(async () => {
       try {
         await delApi({ id });
         getList();
-        $message.success(`Delete completed`);
+        $message.success(`删除成功`);
       } catch (error: any) {
         $message.error(error.message);
       }
@@ -75,13 +82,9 @@ async function del(id: string) {
   <div class="app-page cz-card px16">
     <TableView ref="tableRef" :columns="columns" :data="tableData" :loading="loading" showHeader title="分类列表">
       <template #header-tools>
-        <el-button type="primary" @click="add">新增分类</el-button>
-      </template>
-      <template #action="{ row }">
-        <el-button link type="primary" size="small" @click="edit(row.id)">编辑</el-button>
-        <el-button link type="danger" size="small" @click="del(row.id)">删除</el-button>
+        <el-button type="primary" @click="goForm()">新增分类</el-button>
       </template>
     </TableView>
-    <CategoryFormDrawer v-model="_isEdit" :id="_id" @update-list="getList" />
+    <CategoryFormDrawer v-model="isEdit" :id="nowId" @update-list="getList" />
   </div>
 </template>

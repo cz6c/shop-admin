@@ -8,7 +8,7 @@ export default {
   meta: {
     title: "产品中心",
     icon: "menu-product",
-    orderNo: 2,
+    orderNo: 3,
   },
   redirect: "/product/spu",
   children: [
@@ -38,13 +38,13 @@ export default {
         title: "分类管理",
       },
     },
-    {
-      path: "/product/specification",
-      name: "Specification",
-      component: () => import(`@/views/product/specification/index.vue`),
-      meta: {
-        title: "规格管理",
-      },
-    },
+    // {
+    //   path: "/product/specification",
+    //   name: "Specification",
+    //   component: () => import(`@/views/product/specification/index.vue`),
+    //   meta: {
+    //     title: "规格管理",
+    //   },
+    // },
   ],
 } as AppRouteRecordRaw;
