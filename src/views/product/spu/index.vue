@@ -20,14 +20,14 @@ const searchList = reactive<SearchProps[]>([
     prop: "name",
     label: "商品名称",
   },
-  {
-    el: "date-picker",
-    prop: "createTime",
-    label: "创建时间",
-    props: {
-      type: "date",
-    },
-  },
+  // {
+  //   el: "date-picker",
+  //   prop: "createTime",
+  //   label: "创建时间",
+  //   props: {
+  //     type: "date",
+  //   },
+  // },
 ]);
 const columns: TableCol<ProductItem>[] = [
   {
@@ -58,13 +58,32 @@ const columns: TableCol<ProductItem>[] = [
   {
     label: "上架状态",
     prop: "status",
-    render: ({ row }) => <el-switch v-model={row.status} onClick={() => statusChange(row.status, row.id)} />,
+    render: ({ row }) => <el-switch v-model={row.status} onClick={() => statusChange(row.id)} />,
   },
   {
     label: "创建时间",
     prop: "createTime",
     width: 160,
     formatter: ({ row }) => dayjs(row.createTime).format("YYYY/MM/DD HH:mm:ss"),
+  },
+  {
+    label: "操作",
+    prop: "action",
+    width: 140,
+    fixed: "right",
+    render: ({ row }) => (
+      <>
+        <el-button link type="primary" size="small" onClick={() => goDetails(row.id)}>
+          详情
+        </el-button>
+        <el-button link type="primary" size="small" onClick={() => goForm(row.id)}>
+          编辑
+        </el-button>
+        <el-button link type="danger" size="small" onClick={() => del(row.id)}>
+          删除
+        </el-button>
+      </>
+    ),
   },
 ];
 const selectList = ref<ProductItem[]>([]);
@@ -80,7 +99,7 @@ const apiQuery = reactive({
   limit: 20,
   total: 0,
   name: "",
-  createTime: "",
+  // createTime: "",
 });
 
 const tableRef = ref<TableViewInstance>();
@@ -115,13 +134,11 @@ function goDetails(id: string) {
 
 /**
  * @description: 状态切换
- * @param {*} status
  * @param {*} id
  */
-async function statusChange(status: boolean, id: string) {
-  console.log(id, status);
+async function statusChange(id: string) {
   try {
-    await statusApi({ status, id });
+    await statusApi({ id });
     $message.success("切换成功");
     getList();
   } catch (error: any) {
@@ -168,14 +185,10 @@ async function del(id: string) {
         title="商品列表"
         :pagination="pagination"
         :selection="selection"
+        isIndexCol
       >
         <template #header-tools>
           <el-button type="primary" @click="goForm()">新增商品</el-button>
-        </template>
-        <template #action="{ row }">
-          <el-button link type="primary" size="small" @click="goDetails(row.id)">详情</el-button>
-          <el-button link type="primary" size="small" @click="goForm(row.id)">编辑</el-button>
-          <el-button link type="danger" size="small" @click="del(row.id)">删除</el-button>
         </template>
       </TableView>
     </div>

@@ -19,7 +19,7 @@ const RenderTableColumn = (item: TableCol) => {
   return (
     <>
       {
-        <el-table-column {...item} align={item.align ?? "center"} showOverflowTooltip={item.showOverflowTooltip}>
+        <el-table-column {...item} align={item.align ?? "center"}>
           {{
             default: (scope: RenderScope<any>) => {
               if (item.render) return item.render(scope);
@@ -28,7 +28,6 @@ const RenderTableColumn = (item: TableCol) => {
             },
             header: (scope: HeaderRenderScope<any>) => {
               if (item.headerRender) return item.headerRender(scope);
-              if (slots[`${handleProp(item.prop)}Header`]) return slots[`${handleProp(item.prop)}Header`](scope);
               return item.label;
             },
           }}

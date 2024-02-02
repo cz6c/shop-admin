@@ -1,8 +1,10 @@
 <script setup lang="tsx" name="GenerateSku">
 import { SpecificationItem, SkuItem } from "@/api/product/spu/index.d";
+import { betchDelSkuApi, betchDelSpecsApi } from "@/api/product/spu";
 import { isEqual } from "lodash-es";
 import UploadImg from "@/components/Upload/UploadImg.vue";
 import { TableCol } from "@/components/TableView";
+import TableView from "@/components/TableView/index.vue";
 
 const specList = defineModel<SpecificationItem[]>("specs", { required: true });
 const skuList = defineModel<SkuItem[]>("skus", { required: true });
@@ -86,26 +88,24 @@ function addSpecItem() {
 }
 
 // 删除规格项
-function delSpecItem(idx: number) {
-  const list = skuList.value.filter(c => c.id);
-  console.log(list);
-  ElMessageBox({
-    title: "删除规格项",
-    message: (
-      <el-table data={list}>
-        {columnss.value.map(({ prop, label }) => (
-          <el-table-column prop={prop} label={label} />
-        ))}
-      </el-table>
-    ),
-  })
-    .then(() => {
-      console.log(1);
-      specList.value.splice(idx, 1);
-      // 同步更新skuList
-      handleGenerate();
-    })
-    .catch();
+async function delSpecItem(idx: number) {
+  if (specList.value.length > 1) {
+    await betchDelSpecsApi({ ids: [specList.value[idx].id] });
+    specList.value.splice(idx, 1);
+    // 同步更新skuList
+    handleGenerate();
+  } else {
+    const list = skuList.value.filter(c => c.id);
+    ElMessageBox.confirm(`sku名称为：${list.map(c => c.skuName).join()}的sku数据，将被删除`, "删除规格项")
+      .then(async () => {
+        await betchDelSpecsApi({ ids: [specList.value[idx].id] });
+        await betchDelSkuApi({ ids: list.map(c => c.id) });
+        specList.value.splice(idx, 1);
+        // 同步更新skuList
+        handleGenerate();
+      })
+      .catch();
+  }
 }
 
 // 新增规格值
@@ -118,13 +118,17 @@ function addSpecOptVal(item: SpecificationItem, idx: number) {
   handleGenerate();
 }
 
-// 删除规格项
+// 删除规格值
 function delSpecOptVal(item: SpecificationItem, index: number) {
   const list = skuList.value.filter(c => c.id && c.specVals.includes(item.options[index]));
-  console.log(list);
-  item.options.splice(index, 1);
-  // 同步更新skuList
-  handleGenerate();
+  ElMessageBox.confirm(`sku名称为：${list.map(c => c.skuName).join()}的sku数据，将被删除`, "删除规格值")
+    .then(async () => {
+      await betchDelSkuApi({ ids: list.map(c => c.id) });
+      item.options.splice(index, 1);
+      // 同步更新skuList
+      handleGenerate();
+    })
+    .catch();
 }
 
 // 修改规格值时同步更新sku的规格数据
