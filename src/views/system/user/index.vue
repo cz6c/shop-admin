@@ -1,171 +1,162 @@
-<template>
-  <div class="page">
-    <TableView
-      ref="tableRef"
-      :columns="columns"
-      :getListApi="getListApi"
-      :searchColumns="searchList"
-      pagination
-      title="用户列表"
-      @selection-change="selectionChange"
-    >
-      <template #table-tools>
-        <el-button type="primary" @click="add">新增用户</el-button>
-      </template>
-      <template #status="{ row }">
-        <el-switch
-          v-model="row.status"
-          :active-value="1"
-          :inactive-value="0"
-          @click="statusChange(row.status, row.id)"
-        />
-      </template>
-      <template #action="{ row }">
-        <el-button link type="primary" size="small" @click="del(row.id)">Detail</el-button>
-        <el-button link type="primary" size="small" @click="edit(row.id)">Edit</el-button>
-      </template>
-    </TableView>
-    <UserDrawerEdit v-model="_isEdit" :id="_id" @update-list="tableRef?.getList" />
-  </div>
-</template>
-<script setup lang="ts" name="User">
-import { ref, reactive } from "vue";
-import { TableCol, TableViewInstance } from "@/components/TableView/type";
+<script setup lang="tsx" name="User">
+import TableView from "@/components/TableView/index.vue";
+import { TableCol, TableViewInstance, Selection } from "@/components/TableView/index.d";
+import { useTable } from "@/components/TableView/useTable";
 import { SearchProps } from "@/components/SearchForm/type";
-import { getUserListApi, statusChangeApi, delUserApi } from "@/api/system/user";
+import { getUserListApi, delUserApi } from "@/api/system/user";
 import { UserItem } from "@/api/system/user/index.d";
-import UserDrawerEdit from "./components/UserDrawerEdit.vue";
-import { ElMessageBox } from "element-plus";
 import { $message } from "@/utils/message";
+import { dayjs } from "element-plus";
+import UserFormDrawer from "./components/UserFormDrawer.vue";
+import { genderMaps } from "./enum";
 
 const getListApi = getUserListApi;
 const delApi = delUserApi;
-const statusApi = statusChangeApi;
 
-const columns: TableCol<UserItem>[] = [
-  {
-    label: "username",
-    prop: "username",
-  },
-  {
-    label: "avatar",
-    prop: "avatar",
-  },
-  {
-    label: "roleId",
-    prop: "roleId",
-  },
-  {
-    label: "status",
-    prop: "status",
-  },
-  {
-    label: "createTime",
-    prop: "createTime",
-  },
-  {
-    label: "remark",
-    prop: "remark",
-  },
-];
 const searchList = reactive<SearchProps[]>([
   {
     el: "input",
-    prop: "username",
-    label: "username",
-    defaultValue: "",
+    prop: "nickname",
+    label: "用户昵称",
   },
-  {
-    el: "date-picker",
-    defaultValue: "",
-    prop: "createTime",
-    label: "createTime",
-    props: {
-      type: "date",
-    },
-  },
-  {
-    el: "switch",
-    prop: "delivery",
-    label: "Instant delivery",
-    defaultValue: 0,
-  },
-  {
-    prop: "desc",
-    label: "Activity form",
-    el: "input",
-    defaultValue: "",
-    props: {
-      type: "textarea",
-    },
-  },
+  // {
+  //   el: "date-picker",
+  //   prop: "createTime",
+  //   label: "创建时间",
+  //   props: {
+  //     type: "date",
+  //   },
+  // },
 ]);
+const columns: TableCol<UserItem>[] = [
+  {
+    label: "用户账户",
+    prop: "username",
+  },
+  {
+    label: "用户昵称",
+    prop: "nickname",
+  },
+  {
+    label: "用户头像",
+    prop: "avatar",
+    render: ({ row: { avatar } }) => <el-image src={avatar} />,
+  },
+  {
+    label: "用户生日",
+    prop: "birthday",
+  },
+  {
+    label: "用户性别",
+    prop: "gender",
+    formatter: ({ row: { gender } }) => genderMaps[gender],
+  },
+  {
+    label: "用户职位",
+    prop: "profession",
+  },
+  {
+    label: "创建时间",
+    prop: "createTime",
+    width: 165,
+    formatter: ({ row }) => dayjs(row.createTime).format("YYYY/MM/DD HH:mm:ss"),
+  },
+  {
+    label: "操作",
+    prop: "action",
+    width: 140,
+    fixed: "right",
+    render: ({ row }) => (
+      <>
+        <el-button link type="primary" size="small" onClick={() => goForm(row.id)}>
+          编辑
+        </el-button>
+        <el-button link type="danger" size="small" onClick={() => del(row.id)}>
+          删除
+        </el-button>
+      </>
+    ),
+  },
+];
+const selectList = ref<UserItem[]>([]);
+const selection: Selection<UserItem> = {
+  fixed: true,
+  selectedRows: selectList.value,
+  onChange(selection) {
+    selectList.value = selection || [];
+  },
+};
+const apiQuery = reactive({
+  page: 1,
+  limit: 20,
+  total: 0,
+  name: "",
+  // createTime: "",
+});
 
 const tableRef = ref<TableViewInstance>();
 
+const { loading, tableData, reset, search, getList, pagination } = useTable({
+  getListApi,
+  apiQuery,
+});
+getList();
+
 /**
- * @description: 列表选中
- * @param {*} selection
+ * @description: 新增/编辑
+ * @param {*} id
  */
-const selectList: any = ref([]);
-function selectionChange(selection: any[]) {
-  selectList.value = selection || [];
+const isEdit = ref(false);
+const nowId = ref("");
+function goForm(id?: string) {
+  nowId.value = id || "";
+  isEdit.value = true;
 }
 
-const _isEdit = ref(false);
-const _id = ref(0);
-/**
- * @description: 新增
- */
-function add() {
-  _id.value = 0;
-  _isEdit.value = true;
-}
-/**
- * @description: 编辑
- * @param {*} id
- */
-function edit(id: string) {
-  _id.value = id;
-  _isEdit.value = true;
-}
-/**
- * @description: 状态切换
- * @param {*} status
- * @param {*} id
- */
-async function statusChange(status: 0 | 1, id: string) {
-  console.log(id, status);
-  try {
-    await statusApi({ status, id });
-    $message.success("切换成功");
-    tableRef?.value?.getList();
-  } catch (error: any) {
-    $message.error(error.message);
-  }
-}
 /**
  * @description: 删除
  * @param {*} id
  */
 async function del(id: string) {
-  ElMessageBox.confirm("proxy will permanently delete the file. Continue?", "Warning", {
-    confirmButtonText: "OK",
-    cancelButtonText: "Cancel",
+  ElMessageBox.confirm("确定要删除该用户吗?", "删除用户", {
     type: "warning",
   })
     .then(async () => {
       try {
         await delApi({ id });
-        tableRef?.value?.getList();
-        $message.success(`Delete completed`);
+        getList();
+        $message.success(`删除成功`);
       } catch (error: any) {
         $message.error(error.message);
       }
     })
-    .catch(() => {
-      $message.info(`Delete canceled`);
-    });
+    .catch();
 }
 </script>
-@/components/TableView
+
+<template>
+  <div class="app-page flex flex-col">
+    <div class="cz-card mb-10 p16 pb0">
+      <SearchForm :columns="searchList" :search-param="apiQuery" @search="search" @reset="reset" />
+    </div>
+    <div class="cz-card flex-1-hidden px16">
+      <TableView
+        ref="tableRef"
+        :columns="columns"
+        :data="tableData"
+        :loading="loading"
+        showHeader
+        title="用户列表"
+        :pagination="pagination"
+        :selection="selection"
+      >
+        <template #header-tools>
+          <el-button type="primary" @click="goForm()">新增用户</el-button>
+        </template>
+      </TableView>
+    </div>
+    <UserFormDrawer :id="nowId" v-model="isEdit" @update-list="getList" />
+  </div>
+</template>
+
+<style lang="scss" scoped></style>

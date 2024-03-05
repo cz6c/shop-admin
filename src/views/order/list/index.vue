@@ -1,24 +1,22 @@
-<script setup lang="tsx" name="Spu">
+<script setup lang="tsx" name="OrderList">
 import TableView from "@/components/TableView/index.vue";
 import { TableCol, TableViewInstance, Selection } from "@/components/TableView/index.d";
 import { useTable } from "@/components/TableView/useTable";
 import { SearchProps } from "@/components/SearchForm/type";
-import { getProductListApi, statusChangeApi, delProductApi } from "@/api/product/spu";
-import { ProductItem } from "@/api/product/spu/index.d";
+import { getMemberListApi, delMemberApi } from "@/api/member/user";
+import { MemberItem } from "@/api/member/user/index.d";
 import { $message } from "@/utils/message";
 import { dayjs } from "element-plus";
+import { genderMaps } from "./enum";
 
-const getListApi = getProductListApi;
-const delApi = delProductApi;
-const statusApi = statusChangeApi;
-
-const router = useRouter();
+const getListApi = getMemberListApi;
+const delApi = delMemberApi;
 
 const searchList = reactive<SearchProps[]>([
   {
     el: "input",
-    prop: "name",
-    label: "商品名称",
+    prop: "nickname",
+    label: "会员昵称",
   },
   // {
   //   el: "date-picker",
@@ -29,41 +27,37 @@ const searchList = reactive<SearchProps[]>([
   //   },
   // },
 ]);
-const columns: TableCol<ProductItem>[] = [
+const columns: TableCol<MemberItem>[] = [
   {
-    label: "商品名称",
-    prop: "name",
+    label: "会员账户",
+    prop: "username",
   },
   {
-    label: "商品编码",
-    prop: "spuCode",
+    label: "会员昵称",
+    prop: "nickname",
   },
   {
-    label: "商品主图",
-    prop: "mainPictures",
-    render: ({ row: { mainPictures } }) => <el-image src={mainPictures[0]} />,
+    label: "会员头像",
+    prop: "avatar",
+    render: ({ row: { avatar } }) => <el-image src={avatar} />,
   },
   {
-    label: "商品描述",
-    prop: "desc",
+    label: "会员生日",
+    prop: "birthday",
   },
   {
-    label: "商品分类",
-    prop: "categoryName",
+    label: "会员性别",
+    prop: "gender",
+    formatter: ({ row: { gender } }) => genderMaps[gender],
   },
   {
-    label: "当前价格",
-    prop: "price",
-  },
-  {
-    label: "上架状态",
-    prop: "status",
-    render: ({ row }) => <el-switch v-model={row.status} onClick={() => statusChange(row.id)} />,
+    label: "会员职位",
+    prop: "profession",
   },
   {
     label: "创建时间",
     prop: "createTime",
-    width: 160,
+    width: 165,
     formatter: ({ row }) => dayjs(row.createTime).format("YYYY/MM/DD HH:mm:ss"),
   },
   {
@@ -73,9 +67,6 @@ const columns: TableCol<ProductItem>[] = [
     fixed: "right",
     render: ({ row }) => (
       <>
-        <el-button link type="primary" size="small" onClick={() => goDetails(row.id)}>
-          详情
-        </el-button>
         <el-button link type="primary" size="small" onClick={() => goForm(row.id)}>
           编辑
         </el-button>
@@ -86,8 +77,8 @@ const columns: TableCol<ProductItem>[] = [
     ),
   },
 ];
-const selectList = ref<ProductItem[]>([]);
-const selection: Selection<ProductItem> = {
+const selectList = ref<MemberItem[]>([]);
+const selection: Selection<MemberItem> = {
   fixed: true,
   selectedRows: selectList.value,
   onChange(selection) {
@@ -111,46 +102,22 @@ const { loading, tableData, reset, search, getList, pagination } = useTable({
 getList();
 
 /**
- * @description: 编辑
+ * @description: 新增/编辑
  * @param {*} id
  */
+const isEdit = ref(false);
+const nowId = ref("");
 function goForm(id?: string) {
-  console.log(1);
-  router.push({
-    name: "SpuForm",
-    query: {
-      id,
-    },
-  });
-}
-function goDetails(id: string) {
-  router.push({
-    name: "SpuDetails",
-    query: {
-      id,
-    },
-  });
+  nowId.value = id || "";
+  isEdit.value = true;
 }
 
-/**
- * @description: 状态切换
- * @param {*} id
- */
-async function statusChange(id: string) {
-  try {
-    await statusApi({ id });
-    $message.success("切换成功");
-    getList();
-  } catch (error: any) {
-    $message.error(error.message);
-  }
-}
 /**
  * @description: 删除
  * @param {*} id
  */
 async function del(id: string) {
-  ElMessageBox.confirm("确定要删除该商品吗?", "删除商品", {
+  ElMessageBox.confirm("确定要删除该会员吗?", "删除会员", {
     type: "warning",
   })
     .then(async () => {
@@ -178,12 +145,12 @@ async function del(id: string) {
         :data="tableData"
         :loading="loading"
         showHeader
-        title="商品列表"
+        title="会员列表"
         :pagination="pagination"
         :selection="selection"
       >
         <template #header-tools>
-          <el-button type="primary" @click="goForm()">新增商品</el-button>
+          <el-button type="primary" @click="goForm()">新增会员</el-button>
         </template>
       </TableView>
     </div>

@@ -103,185 +103,187 @@ defineExpose({
         v-bind="item.span ? { span: item.span } : formItemCol"
         :style="item.itemStyle"
       >
-        <el-form-item
-          :prop="item.prop"
-          :label="item.label"
-          :labelWidth="item.itemLabelWidth || props.labelWidth"
-          :required="item.required"
-        >
-          <!-- 颜色选择器 -->
-          <template v-if="item.type === 'color-picker'">
-            <el-color-picker
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="{
-                ...(item?.props || {}),
-              }"
-            />
-          </template>
-          <!-- 树选择器 -->
-          <template v-else-if="item.type === 'tree-select'">
-            <el-tree-select
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="{
-                ...(item?.props || {}),
-                ...getPlaceholder(item),
-              }"
-            />
-          </template>
-          <!-- 级联选择器 -->
-          <template v-else-if="item.type === 'cascader'">
-            <el-cascader
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="{
-                ...(item?.props || {}),
-                ...getPlaceholder(item),
-              }"
-            />
-          </template>
-          <!-- 日期时间选择器 -->
-          <template v-else-if="item.type === 'date-picker'">
-            <el-date-picker
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="{
-                ...(item?.props || {}),
-                ...getPlaceholder(item),
-              }"
-            />
-          </template>
-          <!-- 时间选择器 -->
-          <template v-else-if="item.type === 'time-picker'">
-            <el-time-picker
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="{
-                ...(item?.props || {}),
-                ...getPlaceholder(item),
-              }"
-            />
-          </template>
-          <!-- 时间选择 -->
-          <template v-else-if="item.type === 'time-select'">
-            <el-time-select
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="{
-                ...(item?.props || {}),
-                ...getPlaceholder(item),
-              }"
-            />
-          </template>
-          <!-- 滑块 -->
-          <template v-else-if="item.type === 'slider'">
-            <el-slider
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="{
-                ...(item?.props || {}),
-              }"
-            />
-          </template>
-          <!-- 日期选择器 -->
-          <template v-else-if="item.type === 'date'">
-            <el-date-picker
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="{
-                ...(item?.props || {}),
-                ...getPlaceholder(item),
-              }"
-              :disabled="item.disabled"
-            />
-          </template>
-          <!-- 下拉选择器 -->
-          <template v-else-if="item.type === 'select'">
-            <el-select
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="{
-                ...(item?.props || {}),
-                ...getPlaceholder(item),
-              }"
-              :disabled="item.disabled"
-            >
-              <el-option v-for="{ label, value } in item.props.options" :key="value" :label="label" :value="value" />
-            </el-select>
-          </template>
-          <!-- 虚拟列表选择器 -->
-          <template v-else-if="item.type === 'select-v2'">
-            <el-select-v2
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="{
-                ...(item?.props || {}),
-                ...getPlaceholder(item),
-              }"
-              :disabled="item.disabled"
-            />
-          </template>
-          <!-- 开关切换 -->
-          <template v-else-if="item.type === 'switch'">
-            <el-switch
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="item?.props || {}"
-              :disabled="item.disabled"
-            />
-          </template>
-          <!-- 多选 -->
-          <template v-else-if="item.type === 'checkbox'">
-            <el-checkbox-group
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="item?.props || {}"
-              :disabled="item.disabled"
-            >
-              <el-checkbox v-for="{ label, value } in item.props.options" :key="value" :label="value">{{
-                label
-              }}</el-checkbox>
-            </el-checkbox-group>
-          </template>
-          <!-- 单选 -->
-          <template v-else-if="item.type === 'radio'">
-            <el-radio-group
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="item?.props || {}"
-              :disabled="item.disabled"
-            >
-              <el-radio v-for="{ label, value } in item.props.options" :key="value" :label="value">{{
-                label
-              }}</el-radio>
-            </el-radio-group>
-          </template>
-          <!-- 图片上传 -->
-          <template v-else-if="item.type === 'upload'">
-            <UploadImg
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="item?.props || {}"
-              :disabled="item.disabled"
-            />
-          </template>
-          <template v-else-if="item.type === 'uploads'">
-            <UploadImgs
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="item?.props || {}"
-              :disabled="item.disabled"
-            />
-          </template>
-          <!-- 数字输入框 -->
-          <template v-else-if="item.type === 'input-number'">
-            <el-input-number
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="{
-                ...(item?.props || {}),
-                ...getPlaceholder(item),
-              }"
-              :disabled="item.disabled"
-            />
-          </template>
-          <!-- 输入框 -->
-          <template v-else>
-            <el-input
-              v-model="modelValue[handleProp(item.prop)]"
-              v-bind="{
-                ...(item?.props || {}),
-                ...getPlaceholder(item),
-              }"
-              :disabled="item.disabled"
-            />
-          </template>
-        </el-form-item>
+        <template v-if="!item.hidden">
+          <el-form-item
+            :prop="item.prop"
+            :label="item.label"
+            :labelWidth="item.itemLabelWidth || props.labelWidth"
+            :required="item.required"
+          >
+            <!-- 颜色选择器 -->
+            <template v-if="item.type === 'color-picker'">
+              <el-color-picker
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="{
+                  ...(item?.props || {}),
+                }"
+              />
+            </template>
+            <!-- 树选择器 -->
+            <template v-else-if="item.type === 'tree-select'">
+              <el-tree-select
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="{
+                  ...(item?.props || {}),
+                  ...getPlaceholder(item),
+                }"
+              />
+            </template>
+            <!-- 级联选择器 -->
+            <template v-else-if="item.type === 'cascader'">
+              <el-cascader
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="{
+                  ...(item?.props || {}),
+                  ...getPlaceholder(item),
+                }"
+              />
+            </template>
+            <!-- 日期时间选择器 -->
+            <template v-else-if="item.type === 'date-picker'">
+              <el-date-picker
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="{
+                  ...(item?.props || {}),
+                  ...getPlaceholder(item),
+                }"
+              />
+            </template>
+            <!-- 时间选择器 -->
+            <template v-else-if="item.type === 'time-picker'">
+              <el-time-picker
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="{
+                  ...(item?.props || {}),
+                  ...getPlaceholder(item),
+                }"
+              />
+            </template>
+            <!-- 时间选择 -->
+            <template v-else-if="item.type === 'time-select'">
+              <el-time-select
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="{
+                  ...(item?.props || {}),
+                  ...getPlaceholder(item),
+                }"
+              />
+            </template>
+            <!-- 滑块 -->
+            <template v-else-if="item.type === 'slider'">
+              <el-slider
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="{
+                  ...(item?.props || {}),
+                }"
+              />
+            </template>
+            <!-- 日期选择器 -->
+            <template v-else-if="item.type === 'date'">
+              <el-date-picker
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="{
+                  ...(item?.props || {}),
+                  ...getPlaceholder(item),
+                }"
+                :disabled="item.disabled"
+              />
+            </template>
+            <!-- 下拉选择器 -->
+            <template v-else-if="item.type === 'select'">
+              <el-select
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="{
+                  ...(item?.props || {}),
+                  ...getPlaceholder(item),
+                }"
+                :disabled="item.disabled"
+              >
+                <el-option v-for="{ label, value } in item.props.options" :key="value" :label="label" :value="value" />
+              </el-select>
+            </template>
+            <!-- 虚拟列表选择器 -->
+            <template v-else-if="item.type === 'select-v2'">
+              <el-select-v2
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="{
+                  ...(item?.props || {}),
+                  ...getPlaceholder(item),
+                }"
+                :disabled="item.disabled"
+              />
+            </template>
+            <!-- 开关切换 -->
+            <template v-else-if="item.type === 'switch'">
+              <el-switch
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="item?.props || {}"
+                :disabled="item.disabled"
+              />
+            </template>
+            <!-- 多选 -->
+            <template v-else-if="item.type === 'checkbox'">
+              <el-checkbox-group
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="item?.props || {}"
+                :disabled="item.disabled"
+              >
+                <el-checkbox v-for="{ label, value } in item.props.options" :key="value" :label="value">{{
+                  label
+                }}</el-checkbox>
+              </el-checkbox-group>
+            </template>
+            <!-- 单选 -->
+            <template v-else-if="item.type === 'radio'">
+              <el-radio-group
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="item?.props || {}"
+                :disabled="item.disabled"
+              >
+                <el-radio v-for="{ label, value } in item.props.options" :key="value" :label="value">{{
+                  label
+                }}</el-radio>
+              </el-radio-group>
+            </template>
+            <!-- 图片上传 -->
+            <template v-else-if="item.type === 'upload'">
+              <UploadImg
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="item?.props || {}"
+                :disabled="item.disabled"
+              />
+            </template>
+            <template v-else-if="item.type === 'uploads'">
+              <UploadImgs
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="item?.props || {}"
+                :disabled="item.disabled"
+              />
+            </template>
+            <!-- 数字输入框 -->
+            <template v-else-if="item.type === 'input-number'">
+              <el-input-number
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="{
+                  ...(item?.props || {}),
+                  ...getPlaceholder(item),
+                }"
+                :disabled="item.disabled"
+              />
+            </template>
+            <!-- 输入框 -->
+            <template v-else>
+              <el-input
+                v-model="modelValue[handleProp(item.prop)]"
+                v-bind="{
+                  ...(item?.props || {}),
+                  ...getPlaceholder(item),
+                }"
+                :disabled="item.disabled"
+              />
+            </template>
+          </el-form-item>
+        </template>
       </el-col>
     </el-row>
   </el-form>

@@ -1,9 +1,8 @@
-<script lang="ts" setup name="MemberFormDrawer">
-import { MemberItem } from "@/api/member/user/index.d";
-import { getMemberInfoApi, createMemberApi, updateMemberApi } from "@/api/member/user";
+<script lang="ts" setup name="BannerFormDrawer">
+import { BannerItem } from "@/api/operation/banner/index.d";
+import { getBannerInfoApi, createBannerApi, updateBannerApi } from "@/api/operation/banner";
 import { FormItem, FormViewInstance } from "@/components/FormView/index.d";
 import { $message } from "@/utils/message";
-import { genderOpts } from "../enum";
 
 const props = defineProps<{
   id: string;
@@ -14,41 +13,17 @@ const emit = defineEmits<{
 const modelValue = defineModel<boolean>();
 
 const formData = reactive({
-  username: "",
-  password: "",
-  nickname: "",
-  avatar: "",
-  birthday: undefined,
-  gender: 1,
-  profession: "",
+  hrefUrl: "",
+  imgUrl: "",
+  sortNum: undefined,
+  status: true,
+  remark: "",
 });
 const columns = reactive<FormItem[]>([
   {
-    prop: "username",
-    label: "会员账户",
+    prop: "imgUrl",
+    label: "轮播图片",
     required: true,
-    type: "input",
-    span: 24,
-  },
-  {
-    prop: "password",
-    label: "密码",
-    required: true,
-    type: "input",
-    props: {
-      type: "password",
-    },
-    span: 24,
-  },
-  {
-    prop: "nickname",
-    label: "会员昵称",
-    type: "input",
-    span: 24,
-  },
-  {
-    prop: "avatar",
-    label: "会员头像",
     type: "upload",
     span: 24,
     props: {
@@ -57,24 +32,34 @@ const columns = reactive<FormItem[]>([
     },
   },
   {
-    prop: "birthday",
-    label: "会员生日",
-    type: "date-picker",
+    prop: "hrefUrl",
+    label: "跳转地址",
+    type: "input",
     span: 24,
   },
   {
-    prop: "gender",
-    label: "会员性别",
-    type: "select",
+    prop: "sortNum",
+    label: "排序",
+    type: "input-number",
+    span: 24,
+  },
+  {
+    prop: "status",
+    label: "状态",
+    type: "switch",
     span: 24,
     props: {
-      options: genderOpts,
+      activeText: "启用",
+      inactiveText: "禁用",
     },
   },
   {
-    prop: "profession",
-    label: "会员职位",
+    prop: "remark",
+    label: "备注",
     type: "input",
+    props: {
+      type: "textarea",
+    },
     span: 24,
   },
 ]);
@@ -85,13 +70,13 @@ const sumbit = () => {
   formView.value!.submitForm(async () => {
     if (loading.value) return;
     loading.value = true;
-    const json: Partial<MemberItem> = {
+    const json: Partial<BannerItem> = {
       ...formData,
     };
-    let api = createMemberApi;
+    let api = createBannerApi;
     if (props.id) {
       json.id = props.id;
-      api = updateMemberApi;
+      api = updateBannerApi;
     }
     try {
       await api(json);
@@ -115,14 +100,12 @@ function initData() {
 async function handleOpen() {
   initData();
   props.id && getInfo(props.id);
-  columns[0].hidden = !!props.id;
-  columns[1].hidden = !!props.id;
 }
 /**
  * @description: 获取详情
  */
 async function getInfo(id: string) {
-  const { data } = await getMemberInfoApi({ id });
+  const { data } = await getBannerInfoApi({ id });
   for (const key in formData) {
     (formData as { [key: string]: any })[key] = (data as { [key: string]: any })[key];
   }
@@ -132,7 +115,7 @@ async function getInfo(id: string) {
 <template>
   <el-drawer
     v-model="modelValue"
-    :title="`${props.id ? '编辑' : '新增'}会员`"
+    :title="`${props.id ? '编辑' : '新增'}轮播图`"
     class="cz-drawer"
     size="50%"
     @open="handleOpen"

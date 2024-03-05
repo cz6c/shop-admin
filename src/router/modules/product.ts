@@ -8,7 +8,7 @@ export default {
   meta: {
     title: "产品中心",
     icon: "menu-product",
-    orderNo: 3,
+    orderNo: 2,
   },
   redirect: "/product/spu",
   children: [

@@ -33,6 +33,7 @@ export interface FormItem {
   offset?: number;
   itemStyle?: CSSProperties;
   disabled?: boolean;
+  hidden?: boolean;
   props?: any; // 表单项参数，该属性所有值会透传到组件内
 }
 

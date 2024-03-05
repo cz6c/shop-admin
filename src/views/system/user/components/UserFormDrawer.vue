@@ -1,6 +1,6 @@
-<script lang="ts" setup name="MemberFormDrawer">
-import { MemberItem } from "@/api/member/user/index.d";
-import { getMemberInfoApi, createMemberApi, updateMemberApi } from "@/api/member/user";
+<script lang="ts" setup name="UserFormDrawer">
+import { UserItem } from "@/api/system/user/index.d";
+import { getUserInfoApi, createUserApi, updateUserApi } from "@/api/system/user";
 import { FormItem, FormViewInstance } from "@/components/FormView/index.d";
 import { $message } from "@/utils/message";
 import { genderOpts } from "../enum";
@@ -25,7 +25,7 @@ const formData = reactive({
 const columns = reactive<FormItem[]>([
   {
     prop: "username",
-    label: "会员账户",
+    label: "用户账户",
     required: true,
     type: "input",
     span: 24,
@@ -42,13 +42,13 @@ const columns = reactive<FormItem[]>([
   },
   {
     prop: "nickname",
-    label: "会员昵称",
+    label: "用户昵称",
     type: "input",
     span: 24,
   },
   {
     prop: "avatar",
-    label: "会员头像",
+    label: "用户头像",
     type: "upload",
     span: 24,
     props: {
@@ -58,13 +58,13 @@ const columns = reactive<FormItem[]>([
   },
   {
     prop: "birthday",
-    label: "会员生日",
+    label: "用户生日",
     type: "date-picker",
     span: 24,
   },
   {
     prop: "gender",
-    label: "会员性别",
+    label: "用户性别",
     type: "select",
     span: 24,
     props: {
@@ -73,7 +73,7 @@ const columns = reactive<FormItem[]>([
   },
   {
     prop: "profession",
-    label: "会员职位",
+    label: "用户职位",
     type: "input",
     span: 24,
   },
@@ -85,13 +85,13 @@ const sumbit = () => {
   formView.value!.submitForm(async () => {
     if (loading.value) return;
     loading.value = true;
-    const json: Partial<MemberItem> = {
+    const json: Partial<UserItem> = {
       ...formData,
     };
-    let api = createMemberApi;
+    let api = createUserApi;
     if (props.id) {
       json.id = props.id;
-      api = updateMemberApi;
+      api = updateUserApi;
     }
     try {
       await api(json);
@@ -122,7 +122,7 @@ async function handleOpen() {
  * @description: 获取详情
  */
 async function getInfo(id: string) {
-  const { data } = await getMemberInfoApi({ id });
+  const { data } = await getUserInfoApi({ id });
   for (const key in formData) {
     (formData as { [key: string]: any })[key] = (data as { [key: string]: any })[key];
   }
@@ -132,7 +132,7 @@ async function getInfo(id: string) {
 <template>
   <el-drawer
     v-model="modelValue"
-    :title="`${props.id ? '编辑' : '新增'}会员`"
+    :title="`${props.id ? '编辑' : '新增'}用户`"
     class="cz-drawer"
     size="50%"
     @open="handleOpen"

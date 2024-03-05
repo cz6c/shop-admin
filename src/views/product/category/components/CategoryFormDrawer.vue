@@ -87,7 +87,13 @@ async function getInfo(id: string) {
 </script>
 
 <template>
-  <el-drawer v-model="modelValue" title="新增分类" class="cz-drawer" size="50%" @open="handleOpen">
+  <el-drawer
+    v-model="modelValue"
+    :title="`${props.id ? '编辑' : '新增'}分类`"
+    class="cz-drawer"
+    size="50%"
+    @open="handleOpen"
+  >
     <div class="drawer__content">
       <FormView ref="formView" v-model="formData" :columns="columns" />
       <div class="drawer__footer flex flex-justify-end mt-20">

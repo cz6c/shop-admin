@@ -1,65 +1,45 @@
-<script setup lang="tsx" name="MemberUser">
+<script setup lang="tsx" name="Banner">
 import TableView from "@/components/TableView/index.vue";
 import { TableCol, TableViewInstance, Selection } from "@/components/TableView/index.d";
 import { useTable } from "@/components/TableView/useTable";
-import { SearchProps } from "@/components/SearchForm/type";
-import { getMemberListApi, delMemberApi } from "@/api/member/user";
-import { MemberItem } from "@/api/member/user/index.d";
+import { getBannerListApi, delBannerApi, statusChangeApi } from "@/api/operation/banner";
+import { BannerItem } from "@/api/operation/banner/index.d";
 import { $message } from "@/utils/message";
 import { dayjs } from "element-plus";
-import MemberFormDrawer from "./components/MemberFormDrawer.vue";
-import { genderMaps } from "./enum";
+import BannerFormDrawer from "./components/BannerFormDrawer.vue";
 
-const getListApi = getMemberListApi;
-const delApi = delMemberApi;
+const getListApi = getBannerListApi;
+const delApi = delBannerApi;
+const statusApi = statusChangeApi;
 
-const searchList = reactive<SearchProps[]>([
+const columns: TableCol<BannerItem>[] = [
   {
-    el: "input",
-    prop: "nickname",
-    label: "会员昵称",
-  },
-  // {
-  //   el: "date-picker",
-  //   prop: "createTime",
-  //   label: "创建时间",
-  //   props: {
-  //     type: "date",
-  //   },
-  // },
-]);
-const columns: TableCol<MemberItem>[] = [
-  {
-    label: "会员账户",
-    prop: "username",
+    label: "跳转地址",
+    prop: "hrefUrl",
   },
   {
-    label: "会员昵称",
-    prop: "nickname",
+    label: "轮播图片",
+    prop: "imgUrl",
+    render: ({ row: { imgUrl } }) => <el-image src={imgUrl} />,
   },
   {
-    label: "会员头像",
-    prop: "avatar",
-    render: ({ row: { avatar } }) => <el-image src={avatar} />,
+    label: "备注",
+    prop: "remark",
   },
   {
-    label: "会员生日",
-    prop: "birthday",
-  },
-  {
-    label: "会员性别",
-    prop: "gender",
-    formatter: ({ row: { gender } }) => genderMaps[gender],
-  },
-  {
-    label: "会员职位",
-    prop: "profession",
+    label: "排序",
+    prop: "sortNum",
   },
   {
     label: "创建时间",
     prop: "createTime",
     width: 165,
     formatter: ({ row }) => dayjs(row.createTime).format("YYYY/MM/DD HH:mm:ss"),
+  },
+  {
+    label: "上架状态",
+    prop: "status",
+    render: ({ row }) => <el-switch v-model={row.status} onClick={() => statusChange(row.id)} />,
   },
   {
     label: "操作",
@@ -78,8 +58,8 @@ const columns: TableCol<MemberItem>[] = [
     ),
   },
 ];
-const selectList = ref<MemberItem[]>([]);
-const selection: Selection<MemberItem> = {
+const selectList = ref<BannerItem[]>([]);
+const selection: Selection<BannerItem> = {
   fixed: true,
   selectedRows: selectList.value,
   onChange(selection) {
@@ -96,7 +76,7 @@ const apiQuery = reactive({
 
 const tableRef = ref<TableViewInstance>();
 
-const { loading, tableData, reset, search, getList, pagination } = useTable({
+const { loading, tableData, getList, pagination } = useTable({
   getListApi,
   apiQuery,
 });
@@ -118,7 +98,7 @@ function goForm(id?: string) {
  * @param {*} id
  */
 async function del(id: string) {
-  ElMessageBox.confirm("确定要删除该会员吗?", "删除会员", {
+  ElMessageBox.confirm("确定要删除该轮播图吗?", "删除轮播图", {
     type: "warning",
   })
     .then(async () => {
@@ -132,30 +112,41 @@ async function del(id: string) {
     })
     .catch();
 }
+
+/**
+ * @description: 状态切换
+ * @param {*} id
+ */
+async function statusChange(id: string) {
+  try {
+    await statusApi({ id });
+    $message.success("切换成功");
+    getList();
+  } catch (error: any) {
+    $message.error(error.message);
+  }
+}
 </script>
 
 <template>
-  <div class="app-page flex flex-col">
-    <div class="cz-card mb-10 p16 pb0">
-      <SearchForm :columns="searchList" :search-param="apiQuery" @search="search" @reset="reset" />
-    </div>
-    <div class="cz-card flex-1-hidden px16">
+  <div class="app-page">
+    <div class="cz-card px16">
       <TableView
         ref="tableRef"
         :columns="columns"
         :data="tableData"
         :loading="loading"
         showHeader
-        title="会员列表"
+        title="轮播图列表"
         :pagination="pagination"
         :selection="selection"
       >
         <template #header-tools>
-          <el-button type="primary" @click="goForm()">新增会员</el-button>
+          <el-button type="primary" @click="goForm()">新增轮播图</el-button>
         </template>
       </TableView>
     </div>
-    <MemberFormDrawer :id="nowId" v-model="isEdit" @update-list="getList" />
+    <BannerFormDrawer :id="nowId" v-model="isEdit" @update-list="getList" />
   </div>
 </template>
 

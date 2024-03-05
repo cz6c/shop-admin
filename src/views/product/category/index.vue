@@ -60,7 +60,7 @@ function goForm(id?: string) {
  * @param {*} id
  */
 async function del(id: string) {
-  ElMessageBox.confirm("确定删除改分类吗?", "删除分类", {
+  ElMessageBox.confirm("确定删除该分类吗?", "删除分类", {
     type: "warning",
   })
     .then(async () => {
