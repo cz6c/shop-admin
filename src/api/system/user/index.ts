@@ -1,19 +1,19 @@
 import { createGet, createPost } from "@/utils/request";
 import { UserListParams, UserListResponse, UserItem } from "./index.d";
 
+const basePath = `admin/user`;
+
 // 获取列表
-export const getUserListApi = createGet<UserListParams, UserListResponse>("/user/list");
+export const getUserListApi = createGet<UserListParams, UserListResponse>(`${basePath}/list`);
 
 // 获取信息
-export const getLoginUserInfoApi = createGet<never, UserItem>("/user/info");
+export const getLoginUserInfoApi = createGet<never, UserItem>(`${basePath}/info`);
 
 // 获取信息
-export const getUserInfoApi = createGet<{ id: string }, UserItem>("/user/info");
+export const getUserInfoApi = createGet<{ id: string }, UserItem>(`${basePath}/info`);
 // 新增
-export const createUserApi = createPost<Partial<UserItem>, never>("/user/create");
+export const createUserApi = createPost<Partial<UserItem>, never>(`${basePath}/create`);
 // 编辑
-export const updateUserApi = createPost<Partial<UserItem>, never>("/user/update");
-// 状态切换
-export const statusChangeApi = createPost<{ id: string; status: string | number | boolean }, never>("/user/status");
+export const updateUserApi = createPost<Partial<UserItem>, never>(`${basePath}/update`);
 // 删除
-export const delUserApi = createPost<{ id: string }, never>("/user/delete");
+export const delUserApi = createPost<{ id: string }, never>(`${basePath}/delete`);

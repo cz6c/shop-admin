@@ -1,9 +1,9 @@
 <script lang="ts" setup name="UserFormDrawer">
-import { UserItem } from "@/api/system/user/index.d";
+import { UserItem, Gender } from "@/api/system/user/index.d";
 import { getUserInfoApi, createUserApi, updateUserApi } from "@/api/system/user";
 import { FormItem, FormViewInstance } from "@/components/FormView/index.d";
 import { $message } from "@/utils/message";
-import { genderOpts } from "../enum";
+import { enumToOpts } from "@/utils";
 
 const props = defineProps<{
   id: string;
@@ -68,7 +68,7 @@ const columns = reactive<FormItem[]>([
     type: "select",
     span: 24,
     props: {
-      options: genderOpts,
+      options: enumToOpts(Gender),
     },
   },
   {

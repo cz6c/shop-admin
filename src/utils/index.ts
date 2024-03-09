@@ -1,4 +1,4 @@
-import { isArray } from "@/utils/is";
+import { isArray, isNumber } from "@/utils/is";
 
 /**
  * @description 生成唯一 uuid
@@ -88,4 +88,14 @@ export function openWindow(
   noreferrer && feature.push("noreferrer=yes");
 
   window.open(url, target, feature.join(","));
+}
+
+/**
+ * @description: enum数据转opts
+ * @param data
+ */
+export function enumToOpts(data: unknown) {
+  return Object.entries(data)
+    .filter(([, value]) => isNumber(value))
+    .map(([label, value]) => ({ value, label }));
 }

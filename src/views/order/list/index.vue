@@ -1,115 +1,169 @@
 <script setup lang="tsx" name="OrderList">
 import TableView from "@/components/TableView/index.vue";
-import { TableCol, TableViewInstance, Selection } from "@/components/TableView/index.d";
+import { TableConfig, TableViewInstance } from "@/components/TableView/index.d";
 import { useTable } from "@/components/TableView/useTable";
 import { SearchProps } from "@/components/SearchForm/type";
-import { getMemberListApi, delMemberApi } from "@/api/member/user";
-import { MemberItem } from "@/api/member/user/index.d";
+import { getOrderListApi, delOrderApi } from "@/api/order";
+import { OrderItem, OrderState, PayChannel } from "@/api/order/index.d";
 import { $message } from "@/utils/message";
 import { dayjs } from "element-plus";
-import { genderMaps } from "./enum";
+import { enumToOpts } from "@/utils";
 
-const getListApi = getMemberListApi;
-const delApi = delMemberApi;
+const getListApi = getOrderListApi;
+const delApi = delOrderApi;
 
 const searchList = reactive<SearchProps[]>([
   {
     el: "input",
-    prop: "nickname",
-    label: "会员昵称",
-  },
-  // {
-  //   el: "date-picker",
-  //   prop: "createTime",
-  //   label: "创建时间",
-  //   props: {
-  //     type: "date",
-  //   },
-  // },
-]);
-const columns: TableCol<MemberItem>[] = [
-  {
-    label: "会员账户",
-    prop: "username",
+    prop: "orderNo",
+    label: "订单编号",
   },
   {
-    label: "会员昵称",
-    prop: "nickname",
+    el: "select",
+    prop: "orderState",
+    label: "订单状态",
+    options: enumToOpts(OrderState),
   },
   {
-    label: "会员头像",
-    prop: "avatar",
-    render: ({ row: { avatar } }) => <el-image src={avatar} />,
+    el: "select",
+    prop: "payChannel",
+    label: "支付渠道",
+    options: enumToOpts(PayChannel),
   },
   {
-    label: "会员生日",
-    prop: "birthday",
+    el: "input",
+    prop: "receiverMobile",
+    label: "收货人手机",
   },
   {
-    label: "会员性别",
-    prop: "gender",
-    formatter: ({ row: { gender } }) => genderMaps[gender],
-  },
-  {
-    label: "会员职位",
-    prop: "profession",
-  },
-  {
-    label: "创建时间",
+    el: "date-picker",
     prop: "createTime",
-    width: 165,
-    formatter: ({ row }) => dayjs(row.createTime).format("YYYY/MM/DD HH:mm:ss"),
+    label: "下单时间",
+    props: {
+      type: "datetimerange",
+      startPlaceholder: "Start date",
+      endPlaceholder: "End date",
+    },
   },
-  {
-    label: "操作",
-    prop: "action",
-    width: 140,
-    fixed: "right",
-    render: ({ row }) => (
-      <>
-        <el-button link type="primary" size="small" onClick={() => goForm(row.id)}>
-          编辑
-        </el-button>
-        <el-button link type="danger" size="small" onClick={() => del(row.id)}>
-          删除
-        </el-button>
-      </>
-    ),
-  },
-];
-const selectList = ref<MemberItem[]>([]);
-const selection: Selection<MemberItem> = {
-  fixed: true,
-  selectedRows: selectList.value,
-  onChange(selection) {
-    selectList.value = selection || [];
-  },
-};
+]);
+
 const apiQuery = reactive({
   page: 1,
   limit: 20,
   total: 0,
-  name: "",
-  // createTime: "",
+  orderNo: "",
+  orderState: "",
+  payChannel: "",
+  receiverMobile: "",
+  createTime: [],
 });
-
-const tableRef = ref<TableViewInstance>();
 
 const { loading, tableData, reset, search, getList, pagination } = useTable({
   getListApi,
   apiQuery,
+  beforeFetch(params) {
+    if (params.createTime && params.createTime[0] && params.createTime[1]) {
+      params.createTimeStart = params.createTime[0];
+      params.createTimeEnd = params.createTime[1];
+      delete params.createTime;
+    }
+    return params;
+  },
 });
 getList();
 
+const tableRef = ref<TableViewInstance>();
+
+const tableConfig = reactive<TableConfig<OrderItem>>({
+  title: "订单列表",
+  columns: [
+    {
+      label: "订单编号",
+      prop: "username",
+    },
+    {
+      label: "订单状态",
+      prop: "orderState",
+      formatter: ({ row: { orderState } }) => OrderState[orderState],
+    },
+    {
+      label: "收货人",
+      prop: "receiver",
+    },
+    {
+      label: "收货人手机",
+      width: 165,
+      prop: "receiverMobile",
+    },
+    {
+      label: "收货人完整地址",
+      width: 165,
+      prop: "receiverAddress",
+    },
+    {
+      label: "商品总价",
+      prop: "totalMoney",
+    },
+    {
+      label: "运费",
+      prop: "postFee",
+    },
+    {
+      label: "应付金额",
+      prop: "payMoney",
+    },
+    {
+      label: "订单备注",
+      prop: "buyerMessage",
+    },
+    {
+      label: "支付渠道",
+      prop: "payChannel",
+      formatter: ({ row: { payChannel } }) => PayChannel[payChannel],
+    },
+    {
+      label: "下单时间",
+      prop: "createTime",
+      width: 165,
+      formatter: ({ row }) => dayjs(row.createTime).format("YYYY/MM/DD HH:mm:ss"),
+    },
+    {
+      label: "操作",
+      prop: "action",
+      width: 140,
+      fixed: "right",
+      render: ({ row }) => (
+        <>
+          <el-button link type="primary" size="small" onClick={() => goDetails(row.id)}>
+            详情
+          </el-button>
+          <el-button link type="danger" size="small" onClick={() => del(row.id)}>
+            删除
+          </el-button>
+        </>
+      ),
+    },
+  ],
+  pagination,
+  isSelection: true,
+});
+
 /**
- * @description: 新增/编辑
+ * @description: 列表选中
+ * @param {*} selection
+ */
+const selectList = ref<OrderItem[]>([]);
+function selectionChange(selection: OrderItem[]) {
+  selectList.value = selection || [];
+}
+
+/**
+ * @description: 订单详情
  * @param {*} id
  */
-const isEdit = ref(false);
-const nowId = ref("");
-function goForm(id?: string) {
-  nowId.value = id || "";
-  isEdit.value = true;
+const router = useRouter();
+function goDetails(id: string) {
+  router.push({ name: "OrderDetails", query: { id } });
 }
 
 /**
@@ -117,7 +171,7 @@ function goForm(id?: string) {
  * @param {*} id
  */
 async function del(id: string) {
-  ElMessageBox.confirm("确定要删除该会员吗?", "删除会员", {
+  ElMessageBox.confirm("确定要删除该订单吗?", "删除订单", {
     type: "warning",
   })
     .then(async () => {
@@ -141,16 +195,13 @@ async function del(id: string) {
     <div class="cz-card flex-1-hidden px16">
       <TableView
         ref="tableRef"
-        :columns="columns"
         :data="tableData"
         :loading="loading"
-        showHeader
-        title="会员列表"
-        :pagination="pagination"
-        :selection="selection"
+        v-bind="tableConfig"
+        @selection-change="selectionChange"
       >
         <template #header-tools>
-          <el-button type="primary" @click="goForm()">新增会员</el-button>
+          <el-button type="primary">导出订单</el-button>
         </template>
       </TableView>
     </div>

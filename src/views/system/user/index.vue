@@ -1,14 +1,13 @@
 <script setup lang="tsx" name="User">
 import TableView from "@/components/TableView/index.vue";
-import { TableCol, TableViewInstance, Selection } from "@/components/TableView/index.d";
+import { TableConfig, TableViewInstance } from "@/components/TableView/index.d";
 import { useTable } from "@/components/TableView/useTable";
 import { SearchProps } from "@/components/SearchForm/type";
 import { getUserListApi, delUserApi } from "@/api/system/user";
-import { UserItem } from "@/api/system/user/index.d";
+import { UserItem, Gender } from "@/api/system/user/index.d";
 import { $message } from "@/utils/message";
 import { dayjs } from "element-plus";
 import UserFormDrawer from "./components/UserFormDrawer.vue";
-import { genderMaps } from "./enum";
 
 const getListApi = getUserListApi;
 const delApi = delUserApi;
@@ -28,64 +27,7 @@ const searchList = reactive<SearchProps[]>([
   //   },
   // },
 ]);
-const columns: TableCol<UserItem>[] = [
-  {
-    label: "用户账户",
-    prop: "username",
-  },
-  {
-    label: "用户昵称",
-    prop: "nickname",
-  },
-  {
-    label: "用户头像",
-    prop: "avatar",
-    render: ({ row: { avatar } }) => <el-image src={avatar} />,
-  },
-  {
-    label: "用户生日",
-    prop: "birthday",
-  },
-  {
-    label: "用户性别",
-    prop: "gender",
-    formatter: ({ row: { gender } }) => genderMaps[gender],
-  },
-  {
-    label: "用户职位",
-    prop: "profession",
-  },
-  {
-    label: "创建时间",
-    prop: "createTime",
-    width: 165,
-    formatter: ({ row }) => dayjs(row.createTime).format("YYYY/MM/DD HH:mm:ss"),
-  },
-  {
-    label: "操作",
-    prop: "action",
-    width: 140,
-    fixed: "right",
-    render: ({ row }) => (
-      <>
-        <el-button link type="primary" size="small" onClick={() => goForm(row.id)}>
-          编辑
-        </el-button>
-        <el-button link type="danger" size="small" onClick={() => del(row.id)}>
-          删除
-        </el-button>
-      </>
-    ),
-  },
-];
-const selectList = ref<UserItem[]>([]);
-const selection: Selection<UserItem> = {
-  fixed: true,
-  selectedRows: selectList.value,
-  onChange(selection) {
-    selectList.value = selection || [];
-  },
-};
+
 const apiQuery = reactive({
   page: 1,
   limit: 20,
@@ -101,6 +43,61 @@ const { loading, tableData, reset, search, getList, pagination } = useTable({
   apiQuery,
 });
 getList();
+
+const tableConfig = reactive<TableConfig<UserItem>>({
+  title: "用户列表",
+  columns: [
+    {
+      label: "用户账户",
+      prop: "username",
+    },
+    {
+      label: "用户昵称",
+      prop: "nickname",
+    },
+    {
+      label: "用户头像",
+      prop: "avatar",
+      render: ({ row: { avatar } }) => <el-image src={avatar} />,
+    },
+    {
+      label: "用户生日",
+      prop: "birthday",
+    },
+    {
+      label: "用户性别",
+      prop: "gender",
+      formatter: ({ row: { gender } }) => Gender[gender],
+    },
+    {
+      label: "用户职位",
+      prop: "profession",
+    },
+    {
+      label: "创建时间",
+      prop: "createTime",
+      width: 165,
+      formatter: ({ row }) => dayjs(row.createTime).format("YYYY/MM/DD HH:mm:ss"),
+    },
+    {
+      label: "操作",
+      prop: "action",
+      width: 140,
+      fixed: "right",
+      render: ({ row }) => (
+        <>
+          <el-button link type="primary" size="small" onClick={() => goForm(row.id)}>
+            编辑
+          </el-button>
+          <el-button link type="danger" size="small" onClick={() => del(row.id)}>
+            删除
+          </el-button>
+        </>
+      ),
+    },
+  ],
+  pagination,
+});
 
 /**
  * @description: 新增/编辑
@@ -140,16 +137,7 @@ async function del(id: string) {
       <SearchForm :columns="searchList" :search-param="apiQuery" @search="search" @reset="reset" />
     </div>
     <div class="cz-card flex-1-hidden px16">
-      <TableView
-        ref="tableRef"
-        :columns="columns"
-        :data="tableData"
-        :loading="loading"
-        showHeader
-        title="用户列表"
-        :pagination="pagination"
-        :selection="selection"
-      >
+      <TableView ref="tableRef" :data="tableData" :loading="loading" showHeader v-bind="tableConfig">
         <template #header-tools>
           <el-button type="primary" @click="goForm()">新增用户</el-button>
         </template>

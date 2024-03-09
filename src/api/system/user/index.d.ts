@@ -8,7 +8,7 @@ export interface UserItem {
   nickname: string;
   avatar: string;
   birthday: string;
-  gender: number;
+  gender: Gender;
   profession: string;
 }
 
@@ -16,4 +16,12 @@ export interface UserItem {
 export type UserListResponse = GetListResponse<UserItem>;
 export interface UserListParams extends GetListParams {
   username?: string;
+}
+
+/** 性别枚举 */
+export enum Gender {
+  /** 男 */
+  男 = 1,
+  /** 女 */
+  女 = 2,
 }

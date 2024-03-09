@@ -1,5 +1,5 @@
 <script setup lang="tsx" name="Category">
-import { TableCol, TableViewInstance } from "@/components/TableView";
+import { TableConfig, TableViewInstance } from "@/components/TableView";
 import { getCategoryTreesApi, delCategoryApi } from "@/api/product/category";
 import { CategoryItem } from "@/api/product/category/index.d";
 import CategoryFormDrawer from "./components/CategoryFormDrawer.vue";
@@ -9,40 +9,43 @@ import { useTable } from "@/components/TableView/useTable";
 const getListApi = getCategoryTreesApi;
 const delApi = delCategoryApi;
 
-const columns: TableCol<CategoryItem>[] = [
-  {
-    label: "分类名称",
-    prop: "name",
-  },
-  {
-    label: "创建时间",
-    prop: "createTime",
-  },
-  {
-    label: "操作",
-    prop: "action",
-    width: 140,
-    fixed: "right",
-    render: ({ row }) => (
-      <>
-        <el-button link type="primary" size="small" onClick={() => goForm(row.id)}>
-          编辑
-        </el-button>
-        <el-button link type="danger" size="small" onClick={() => del(row.id)}>
-          删除
-        </el-button>
-      </>
-    ),
-  },
-];
-
-const tableRef = ref<TableViewInstance>();
-
 const { loading, tableData, getList } = useTable({
   getListApi,
   apiQuery: {},
 });
 getList();
+
+const tableRef = ref<TableViewInstance>();
+
+const tableConfig = reactive<TableConfig<CategoryItem>>({
+  title: "分类列表",
+  columns: [
+    {
+      label: "分类名称",
+      prop: "name",
+    },
+    {
+      label: "创建时间",
+      prop: "createTime",
+    },
+    {
+      label: "操作",
+      prop: "action",
+      width: 140,
+      fixed: "right",
+      render: ({ row }) => (
+        <>
+          <el-button link type="primary" size="small" onClick={() => goForm(row.id)}>
+            编辑
+          </el-button>
+          <el-button link type="danger" size="small" onClick={() => del(row.id)}>
+            删除
+          </el-button>
+        </>
+      ),
+    },
+  ],
+});
 
 /**
  * @description: 新增/编辑
@@ -80,7 +83,7 @@ async function del(id: string) {
 
 <template>
   <div class="app-page cz-card px16">
-    <TableView ref="tableRef" :columns="columns" :data="tableData" :loading="loading" showHeader title="分类列表">
+    <TableView ref="tableRef" :data="tableData" :loading="loading" v-bind="tableConfig">
       <template #header-tools>
         <el-button type="primary" @click="goForm()">新增分类</el-button>
       </template>

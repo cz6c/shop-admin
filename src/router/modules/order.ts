@@ -20,5 +20,15 @@ export default {
         title: "订单管理",
       },
     },
+    {
+      path: "/order/details",
+      name: "OrderDetails",
+      component: () => import(`@/views/order/list/orderDetails/index.vue`),
+      meta: {
+        title: "订单详情",
+        activeMenu: "/order/list",
+        hideMenu: true,
+      },
+    },
   ],
 } as AppRouteRecordRaw;

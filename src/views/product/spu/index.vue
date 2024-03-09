@@ -1,6 +1,6 @@
 <script setup lang="tsx" name="Spu">
 import TableView from "@/components/TableView/index.vue";
-import { TableCol, TableViewInstance, Selection } from "@/components/TableView/index.d";
+import { TableConfig, TableViewInstance } from "@/components/TableView/index.d";
 import { useTable } from "@/components/TableView/useTable";
 import { SearchProps } from "@/components/SearchForm/type";
 import { getProductListApi, statusChangeApi, delProductApi } from "@/api/product/spu";
@@ -29,71 +29,7 @@ const searchList = reactive<SearchProps[]>([
   //   },
   // },
 ]);
-const columns: TableCol<ProductItem>[] = [
-  {
-    label: "商品名称",
-    prop: "name",
-  },
-  {
-    label: "商品编码",
-    prop: "spuCode",
-  },
-  {
-    label: "商品主图",
-    prop: "mainPictures",
-    render: ({ row: { mainPictures } }) => <el-image src={mainPictures[0]} />,
-  },
-  {
-    label: "商品描述",
-    prop: "desc",
-  },
-  {
-    label: "商品分类",
-    prop: "categoryName",
-  },
-  {
-    label: "当前价格",
-    prop: "price",
-  },
-  {
-    label: "上架状态",
-    prop: "status",
-    render: ({ row }) => <el-switch v-model={row.status} onClick={() => statusChange(row.id)} />,
-  },
-  {
-    label: "创建时间",
-    prop: "createTime",
-    width: 160,
-    formatter: ({ row }) => dayjs(row.createTime).format("YYYY/MM/DD HH:mm:ss"),
-  },
-  {
-    label: "操作",
-    prop: "action",
-    width: 140,
-    fixed: "right",
-    render: ({ row }) => (
-      <>
-        <el-button link type="primary" size="small" onClick={() => goDetails(row.id)}>
-          详情
-        </el-button>
-        <el-button link type="primary" size="small" onClick={() => goForm(row.id)}>
-          编辑
-        </el-button>
-        <el-button link type="danger" size="small" onClick={() => del(row.id)}>
-          删除
-        </el-button>
-      </>
-    ),
-  },
-];
-const selectList = ref<ProductItem[]>([]);
-const selection: Selection<ProductItem> = {
-  fixed: true,
-  selectedRows: selectList.value,
-  onChange(selection) {
-    selectList.value = selection || [];
-  },
-};
+
 const apiQuery = reactive({
   page: 1,
   limit: 20,
@@ -109,6 +45,68 @@ const { loading, tableData, reset, search, getList, pagination } = useTable({
   apiQuery,
 });
 getList();
+
+const tableConfig = reactive<TableConfig<ProductItem>>({
+  title: "商品列表",
+  columns: [
+    {
+      label: "商品名称",
+      prop: "name",
+    },
+    {
+      label: "商品编码",
+      prop: "spuCode",
+    },
+    {
+      label: "商品主图",
+      prop: "mainPictures",
+      render: ({ row: { mainPictures } }) => <el-image src={mainPictures[0]} />,
+    },
+    {
+      label: "商品描述",
+      prop: "desc",
+    },
+    {
+      label: "商品分类",
+      prop: "categoryName",
+    },
+    {
+      label: "当前价格",
+      prop: "price",
+    },
+    {
+      label: "上架状态",
+      prop: "status",
+      render: ({ row }) => <el-switch v-model={row.status} onClick={() => statusChange(row.id)} />,
+    },
+    {
+      label: "创建时间",
+      prop: "createTime",
+      width: 160,
+      formatter: ({ row }) => dayjs(row.createTime).format("YYYY/MM/DD HH:mm:ss"),
+    },
+    {
+      label: "操作",
+      prop: "action",
+      width: 140,
+      fixed: "right",
+      render: ({ row }) => (
+        <>
+          <el-button link type="primary" size="small" onClick={() => goDetails(row.id)}>
+            详情
+          </el-button>
+          <el-button link type="primary" size="small" onClick={() => goForm(row.id)}>
+            编辑
+          </el-button>
+          <el-button link type="danger" size="small" onClick={() => del(row.id)}>
+            删除
+          </el-button>
+        </>
+      ),
+    },
+  ],
+  pagination,
+});
 
 /**
  * @description: 编辑
@@ -172,16 +170,7 @@ async function del(id: string) {
       <SearchForm :columns="searchList" :search-param="apiQuery" @search="search" @reset="reset" />
     </div>
     <div class="cz-card flex-1-hidden px16">
-      <TableView
-        ref="tableRef"
-        :columns="columns"
-        :data="tableData"
-        :loading="loading"
-        showHeader
-        title="商品列表"
-        :pagination="pagination"
-        :selection="selection"
-      >
+      <TableView ref="tableRef" :data="tableData" :loading="loading" v-bind="tableConfig">
         <template #header-tools>
           <el-button type="primary" @click="goForm()">新增商品</el-button>
         </template>

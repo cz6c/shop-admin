@@ -1,16 +1,18 @@
 import { createGet, createPost } from "@/utils/request";
 import { BannerListParams, BannerListResponse, BannerItem } from "./index.d";
 
+const basePath = `admin/banner`;
+
 // 获取列表
-export const getBannerListApi = createGet<BannerListParams, BannerListResponse>("/banner/list");
+export const getBannerListApi = createGet<BannerListParams, BannerListResponse>(`${basePath}/list`);
 
 // 获取信息
-export const getBannerInfoApi = createGet<{ id: string }, BannerItem>("/banner/info");
+export const getBannerInfoApi = createGet<{ id: string }, BannerItem>(`${basePath}/info`);
 // 新增
-export const createBannerApi = createPost<Partial<BannerItem>, never>("/banner/create");
+export const createBannerApi = createPost<Partial<BannerItem>, never>(`${basePath}/create`);
 // 编辑
-export const updateBannerApi = createPost<Partial<BannerItem>, never>("/banner/update");
+export const updateBannerApi = createPost<Partial<BannerItem>, never>(`${basePath}/update`);
 // 删除
-export const delBannerApi = createPost<{ id: string }, never>("/banner/delete");
+export const delBannerApi = createPost<{ id: string }, never>(`${basePath}/delete`);
 // 状态切换
-export const statusChangeApi = createGet<{ id: string }, never>("/banner/statusCheck");
+export const statusChangeApi = createGet<{ id: string }, never>(`${basePath}/statusCheck`);

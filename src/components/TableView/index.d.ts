@@ -3,12 +3,6 @@ import { TableColumnCtx } from "element-plus/es/components/table/src/table-colum
 import { TableProps } from "./index.vue";
 import TableView from "./index.vue";
 
-export interface Selection<T = any> {
-  fixed?: boolean; // 把选择框列固定在左边
-  selectedRows?: T[]; // 指定选中项数组
-  onChange: (selectedRows: T[]) => void; //选中项发生变化时的回调
-}
-
 export type RenderScope<T> = {
   row: T;
   $index: number;
@@ -32,3 +26,5 @@ export interface TableCol<T = any>
 }
 
 export type TableViewInstance = Omit<InstanceType<typeof TableView>, keyof ComponentPublicInstance | keyof TableProps>;
+
+export type TableConfig<T> = Omit<TableProps<T>, "data" | "loading">;

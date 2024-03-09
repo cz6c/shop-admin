@@ -1,22 +1,24 @@
 import { createGet, createPost } from "@/utils/request";
 import { ProductListParams, ProductListResponse, ProductItem } from "./index.d";
 
+const basePath = `admin/product`;
+
 // 获取列表
-export const getProductListApi = createGet<ProductListParams, ProductListResponse>("/product/list");
+export const getProductListApi = createGet<ProductListParams, ProductListResponse>(`${basePath}/list`);
 
 // 获取信息
-export const getProductInfoApi = createGet<{ id: string }, ProductItem>("/product/info");
+export const getProductInfoApi = createGet<{ id: string }, ProductItem>(`${basePath}/info`);
 // 新增
-export const createProductApi = createPost<Partial<ProductItem>, never>("/product/create");
+export const createProductApi = createPost<Partial<ProductItem>, never>(`${basePath}/create`);
 // 编辑
-export const updateProductApi = createPost<Partial<ProductItem>, never>("/product/update");
+export const updateProductApi = createPost<Partial<ProductItem>, never>(`${basePath}/update`);
 // 状态切换
-export const statusChangeApi = createGet<{ id: string }, never>("/product/statusCheck");
+export const statusChangeApi = createGet<{ id: string }, never>(`${basePath}/statusCheck`);
 // 删除
-export const delProductApi = createPost<{ id: string }, never>("/product/delete");
+export const delProductApi = createPost<{ id: string }, never>(`${basePath}/delete`);
 
 // 批量删除sku
-export const betchDelSkuApi = createPost<{ ids: string[] }, never>("/sku/delete");
+export const betchDelSkuApi = createPost<{ ids: string[] }, never>(`/admin/sku/delete`);
 
 // 批量删除规格
-export const betchDelSpecsApi = createPost<{ ids: string[] }, never>("/specs/delete");
+export const betchDelSpecsApi = createPost<{ ids: string[] }, never>(`/admin/specs/delete`);

@@ -3,7 +3,8 @@ import { MemberItem } from "@/api/member/user/index.d";
 import { getMemberInfoApi, createMemberApi, updateMemberApi } from "@/api/member/user";
 import { FormItem, FormViewInstance } from "@/components/FormView/index.d";
 import { $message } from "@/utils/message";
-import { genderOpts } from "../enum";
+import { Gender } from "@/api/system/user/index.d";
+import { enumToOpts } from "@/utils";
 
 const props = defineProps<{
   id: string;
@@ -68,7 +69,7 @@ const columns = reactive<FormItem[]>([
     type: "select",
     span: 24,
     props: {
-      options: genderOpts,
+      options: enumToOpts(Gender),
     },
   },
   {
