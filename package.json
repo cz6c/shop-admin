@@ -4,7 +4,7 @@
   "version": "0.0.6",
   "scripts": {
     "dev": "vite",
-    "build:test": "vite build --mode test",
+    "build": "vite build --mode development",
     "build:prod": "vite build --mode production",
     "preview": "vite preview",
     "lint:eslint": "eslint --cache --max-warnings 0  \"src/**/*.{vue,ts,tsx}\" --fix",

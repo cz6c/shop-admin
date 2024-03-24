@@ -1,7 +1,7 @@
 import { createGet, createPost } from "@/utils/request";
 import { MemberListParams, MemberListResponse, MemberItem } from "./index.d";
 
-const basePath = "/admin/member";
+const basePath = "/member";
 
 // 获取列表
 export const getMemberListApi = createGet<MemberListParams, MemberListResponse>(`${basePath}/list`);

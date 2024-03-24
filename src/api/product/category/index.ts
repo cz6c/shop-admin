@@ -1,7 +1,7 @@
 import { createGet, createPost } from "@/utils/request";
 import { CategoryItem } from "./index.d";
 
-const basePath = `admin/category`;
+const basePath = `/category`;
 
 // 获取树列表
 export const getCategoryTreesApi = createGet<never, CategoryItem[]>(`${basePath}/trees`);

@@ -1,7 +1,7 @@
 import { createGet, createPost } from "@/utils/request";
 import { BannerListParams, BannerListResponse, BannerItem } from "./index.d";
 
-const basePath = `admin/banner`;
+const basePath = `/banner`;
 
 // 获取列表
 export const getBannerListApi = createGet<BannerListParams, BannerListResponse>(`${basePath}/list`);
